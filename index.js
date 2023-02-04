@@ -56,4 +56,18 @@ app.listen(process.env.PORT, () => {
     console.log(`Server is running on port ${process.env.PORT}`);
 });
 
+app.use((err, req, res, next) => {
+    // set locals, only providing error in development
+    res.locals.message = err.message;
+
+    // render the error page
+    res.status(err.status || 500).send({
+        ok: false,
+        error: err.name || 'Internal Server Error',
+        message:
+            err.message || 'Something went wrong, please retry in a while!',
+    });
+    // res.render("error");
+});
+
 module.exports = app;

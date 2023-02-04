@@ -29,13 +29,38 @@ exports.googlePassport = passport.use(
         },
         async (_, __, profile, cb) => {
             try {
+                if (
+                    profile.emails &&
+                    !profile.emails[0].value.endsWith('nits.ac.in')
+                ) {
+                    const err = new UserNotAuthorized(
+                        'Please use your college email to login.'
+                    );
+                    err.status = 401;
+                    return cb(err, null);
+                }
+
                 let user = await User.findByPk(profile.id);
 
                 if (user) {
                     return cb(null, user);
                 }
 
-                return cb(null, profile);
+                user = new User({
+                    authID: profile.id,
+                    enrollStatus: true,
+                    isVerified: false,
+                    lastLogin: Date.now(),
+                });
+
+                user.imageLink =
+                    profile.photos.length > 0 ? profile.photos[0].value : null;
+                user.collegeEmail =
+                    profile.emails.length > 0 ? profile.emails[0].value : null;
+
+                await user.save();
+
+                return cb(null, user);
             } catch (err) {
                 return cb(err, null);
             }
@@ -67,8 +92,9 @@ exports.verifyToken = async (req, res, next) => {
     const token = req.headers.authorization;
 
     if (!token) {
-        req.noToken = true;
-        next();
+        const err = new NoTokenError('No token provided');
+        err.status = 401;
+        next(err);
     }
 
     const tokenValue = token.split(' ')[1];

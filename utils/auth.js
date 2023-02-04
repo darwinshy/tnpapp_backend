@@ -4,7 +4,11 @@ const jwt = require('jsonwebtoken');
 
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const User = require('../models/user');
-const { UserNotAuthorized } = require('./errors');
+const {
+    UserNotAuthorized,
+    TokenExpiredError,
+    NoTokenError,
+} = require('./errors');
 
 // Register the serializers for passport to be able to
 // access the user attributes while authentication
@@ -58,5 +62,81 @@ exports.decodeJwt = (token) => {
     return null;
 };
 
-// Middleware implementation to verify a user based on JWT token, disables session handling
-exports.verifyUser = passport.authenticate('jwt', { session: false });
+// check whether the user authorization token is valid or not and if valid then pass the user details to the next middleware
+exports.verifyToken = async (req, res, next) => {
+    const token = req.headers.authorization;
+
+    if (!token) {
+        const err = new NoTokenError(
+            'No token provided. Please provide a valid token'
+        );
+        err.status = 401;
+        next(err);
+    }
+
+    const tokenValue = token.split(' ')[1];
+
+    let user = await User.findOne({ where: { accessToken: tokenValue } });
+    console.log(user);
+
+    if (user) {
+        req.user = user;
+        next();
+    }
+
+    next();
+};
+
+// Admin, Coordinator and Hiring Manager are the three types of users in the system
+
+// This middleware verifies if the user is an admin
+exports.verifyAdmin = (req, res, next) => {
+    if (req.user.accessLevel === 'ADMIN') {
+        next();
+    } else {
+        const err = new UserNotAuthorized(
+            "You don't have enough permission to perform this action"
+        );
+        err.status = 403;
+        next(err);
+    }
+};
+
+// This middleware verifies if the user is a coordinator
+exports.verifyCoordinator = (req, res, next) => {
+    if (req.user.accessLevel === 'COORDINATOR') {
+        next();
+    } else {
+        const err = new UserNotAuthorized(
+            "You don't have enough permission to perform this action"
+        );
+        err.status = 403;
+        next(err);
+    }
+};
+
+// This middleware verifies if the user is a hiring manager
+exports.verifyHiringManager = (req, res, next) => {
+    if (req.user.accessLevel === 'HIRINGMANAGER') {
+        next();
+    } else {
+        const err = new UserNotAuthorized(
+            "You don't have enough permission to perform this action"
+        );
+        err.status = 403;
+        next(err);
+    }
+};
+
+// This middleware verifies if the user is a student
+exports.verifyStudent = (req, res, next) => {
+    if (req.user.accessLevel === 'STUDENT') {
+        next();
+    } else {
+        const err = new UserNotAuthorized(
+            "You don't have enough permission to perform this action"
+        );
+        err.status = 403;
+        next(err);
+    }
+};

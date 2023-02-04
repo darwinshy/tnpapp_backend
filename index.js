@@ -7,8 +7,9 @@ const sequelize = require('./config/db');
 require('dotenv').config();
 
 // Import all the internal routers from the app
-const userRouter = require('./routes/user');
+const indexRouter = require('./routes/');
 const authRouter = require('./routes/auth');
+const userRouter = require('./routes/user');
 
 // Initialise the express application
 const app = express();
@@ -23,6 +24,7 @@ app.use(
         saveUninitialized: false,
     })
 );
+
 // Passport middleware initialization. It also sets up the user
 // serializers and deserializers which will be enable app to
 // access user attributes while authentication
@@ -30,13 +32,17 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // Setup up the router for home page and endpoints
-// for unregistered users ( signup/login/logout)
-app.use('/home', (req, res) => res.send('Welcome to the home page'));
+// for unregistered users (signup/login/logout)
+app.use('/', indexRouter);
 app.use('/app', authRouter);
+
+//
+app.use('/api/v1/user', userRouter);
 
 // Middleware to server the static files from public directory
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Connect to the database
 sequelize
     .authenticate()
     .then(() => {

@@ -20,6 +20,17 @@ class TokenExpiredError extends Error {
     }
 }
 
+class NoTokenError extends Error {
+    constructor(...params) {
+        super(...params);
+
+        if (Error.captureStackTrace) {
+            Error.captureStackTrace(this, NoTokenError);
+        }
+        this.name = 'NoTokenError';
+    }
+}
+
 class ObjectNotFound extends Error {
     constructor(...params) {
         super(...params);
@@ -93,5 +104,6 @@ module.exports = {
     MissingRequiredPayload,
     InvalidRequestPayload,
     MissingQueryParam,
+    NoTokenError,
     error,
 };

@@ -63,8 +63,8 @@ const User = sequelize.define('user', {
     accessLevel: {
         type: Sequelize.ENUM(
             'ADMIN',
-            'STUDENT',
             'COORDINATOR',
+            'STUDENT',
             'HIRINGMANAGER'
         ),
         allowNull: true,

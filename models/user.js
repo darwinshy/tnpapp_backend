@@ -20,6 +20,10 @@ const User = sequelize.define('user', {
         type: Sequelize.STRING,
         allowNull: true,
     },
+    middleName: {
+        type: Sequelize.STRING,
+        allowNull: true,
+    },
     lastName: {
         type: Sequelize.STRING,
         allowNull: true,
@@ -37,15 +41,15 @@ const User = sequelize.define('user', {
         allowNull: true,
     },
     whatsappContact: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.STRING,
         allowNull: true,
     },
     primaryContact: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.STRING,
         allowNull: true,
     },
     secondaryContact: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.STRING,
         allowNull: true,
     },
     personalEmail: {
@@ -83,7 +87,7 @@ const User = sequelize.define('user', {
     },
     enrollStatus: {
         type: Sequelize.BOOLEAN,
-        allowNull: true,
+        allowNull: false,
     },
     accessToken: {
         type: Sequelize.STRING,

@@ -9,6 +9,17 @@ class UserNotAuthorized extends Error {
     }
 }
 
+class UserNotFound extends Error {
+    constructor(...params) {
+        super(...params);
+
+        if (Error.captureStackTrace) {
+            Error.captureStackTrace(this, UserNotFound);
+        }
+        this.name = 'UserNotFound';
+    }
+}
+
 class TokenExpiredError extends Error {
     constructor(...params) {
         super(...params);
@@ -86,6 +97,17 @@ class MissingQueryParam extends Error {
     }
 }
 
+class InvalidQueryParam extends Error {
+    constructor(...params) {
+        super(...params);
+
+        if (Error.captureStackTrace) {
+            Error.captureStackTrace(this, InvalidQueryParam);
+        }
+        this.name = 'InvalidQueryParam';
+    }
+}
+
 const error = {
     100: 'EmptyRequestBody',
     101: 'ObjectNotFound',
@@ -105,5 +127,7 @@ module.exports = {
     InvalidRequestPayload,
     MissingQueryParam,
     NoTokenError,
+    UserNotFound,
+    InvalidQueryParam,
     error,
 };

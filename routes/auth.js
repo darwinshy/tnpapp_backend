@@ -37,7 +37,7 @@ authRouter.get(
                 await user.save();
 
                 res.send({
-                    success: true,
+                    ok: true,
                     message: 'User authenticated successfully.',
                     accessToken: token,
                     authID: req.user.authID,

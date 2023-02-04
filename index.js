@@ -24,6 +24,7 @@ app.use(
         saveUninitialized: false,
     })
 );
+app.disable('x-powered-by');
 
 // Passport middleware initialization. It also sets up the user
 // serializers and deserializers which will be enable app to
@@ -57,9 +58,6 @@ app.listen(process.env.PORT, () => {
 });
 
 app.use((err, req, res, next) => {
-    // set locals, only providing error in development
-    res.locals.message = err.message;
-
     // render the error page
     res.status(err.status || 500).send({
         ok: false,

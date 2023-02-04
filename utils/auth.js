@@ -3,12 +3,11 @@ const passport = require('passport');
 const jwt = require('jsonwebtoken');
 
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
+// const JwtStrategy = require('passport-jwt').Strategy;
+// const { ExtractJwt } = require('passport-jwt');
+
 const User = require('../models/user');
-const {
-    UserNotAuthorized,
-    TokenExpiredError,
-    NoTokenError,
-} = require('./errors');
+const { UserNotAuthorized, UserNotFound, NoTokenError } = require('./errors');
 
 // Register the serializers for passport to be able to
 // access the user attributes while authentication
@@ -51,6 +50,7 @@ exports.googlePassport = passport.use(
                     enrollStatus: true,
                     isVerified: false,
                     lastLogin: Date.now(),
+                    accessLevel: 'STUDENT',
                 });
 
                 user.imageLink =
@@ -87,23 +87,30 @@ exports.decodeJwt = (token) => {
     return null;
 };
 
-// check whether the user authorization token is valid or not and if valid then pass the user details to the next middleware
-exports.verifyToken = async (req, res, next) => {
+// Check whether the user authorization token is valid or not and if valid then
+// pass the user details to the next middleware
+exports.verifyUser = async (req, res, next) => {
     const token = req.headers.authorization;
 
     if (!token) {
-        const err = new NoTokenError('No token provided');
+        const err = new NoTokenError(
+            'Provide a valid token in the authorization header'
+        );
         err.status = 401;
-        next(err);
+        return next(err);
     }
 
     const tokenValue = token.split(' ')[1];
 
     let user = await User.findOne({ where: { accessToken: tokenValue } });
 
-    if (user) {
-        req.user = user;
+    if (!user) {
+        const err = new UserNotFound('User not found for the provided token');
+        err.status = 401;
+        return next(err);
     }
+
+    req.user = user;
 
     next();
 };
@@ -159,3 +166,30 @@ exports.verifyStudent = (req, res, next) => {
         next(err);
     }
 };
+
+// Middleware implementation to verify a user based on JWT token, disables
+// session handling
+// exports.verifyUser = passport.authenticate('jwt', { session: false });
+
+// Implementation of the jsonwebtoken based passport strategy
+// passport.use(
+//     new JwtStrategy(
+//         {
+//             jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+//             secretOrKey: process.env.SECRET_KEY,
+//         },
+//         async (jwtPayload, done) => {
+//             console.log(jwtPayload);
+
+//             let user = await User.findByPk(jwtPayload._id);
+
+//             if (!user) {
+//                 const err = new UserNotFound('User not found');
+//                 err.status = 401;
+//                 done(null);
+//             }
+
+//             done(null, user);
+//         }
+//     )
+// );

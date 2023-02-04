@@ -67,27 +67,20 @@ exports.verifyToken = async (req, res, next) => {
     const token = req.headers.authorization;
 
     if (!token) {
-        const err = new NoTokenError(
-            'No token provided. Please provide a valid token'
-        );
-        err.status = 401;
-        next(err);
+        req.noToken = true;
+        next();
     }
 
     const tokenValue = token.split(' ')[1];
 
     let user = await User.findOne({ where: { accessToken: tokenValue } });
-    console.log(user);
 
     if (user) {
         req.user = user;
-        next();
     }
 
     next();
 };
-
-// Admin, Coordinator and Hiring Manager are the three types of users in the system
 
 // This middleware verifies if the user is an admin
 exports.verifyAdmin = (req, res, next) => {

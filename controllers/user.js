@@ -7,6 +7,9 @@ const {
     ActionDenied,
 } = require('../utils/errors');
 
+// _____________________________________________________________________________
+// Controller functions
+
 exports.profileMe = (req, res, next) => {
     try {
         if (req.user) {
@@ -187,3 +190,4 @@ exports.suelevate = async (req, res, next) => {
         next(error);
     }
 };
+// _____________________________________________________________________________

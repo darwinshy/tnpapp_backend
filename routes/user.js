@@ -16,6 +16,9 @@ const userRouter = express.Router();
 // Specify the request routes
 userRouter.use(express.json());
 
+// _____________________________________________________________________________
+// Routes
+
 // Get user profile by access token
 userRouter
     .route('/profile/me')
@@ -35,5 +38,6 @@ userRouter
 userRouter
     .route('/profile/:authID/suelevate')
     .patch(cors.corsWithOptions, verifyUser, verifyAdmin, suelevate);
+// _____________________________________________________________________________
 
 module.exports = userRouter;

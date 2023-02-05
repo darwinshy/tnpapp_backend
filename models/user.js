@@ -9,7 +9,6 @@ const User = sequelize.define('user', {
     },
     scholarID: {
         type: Sequelize.STRING,
-
         allowNull: true,
     },
     gradYear: {
@@ -58,7 +57,7 @@ const User = sequelize.define('user', {
     },
     collegeEmail: {
         type: Sequelize.STRING,
-        allowNull: false,
+        allowNull: true,
     },
     professionalEmail: {
         type: Sequelize.STRING,
@@ -87,7 +86,7 @@ const User = sequelize.define('user', {
     },
     enrollStatus: {
         type: Sequelize.BOOLEAN,
-        allowNull: false,
+        allowNull: true,
     },
     accessToken: {
         type: Sequelize.STRING,
@@ -99,7 +98,7 @@ const User = sequelize.define('user', {
     },
     isVerified: {
         type: Sequelize.BOOLEAN,
-        allowNull: false,
+        allowNull: true,
     },
     updatedBy: {
         type: Sequelize.STRING,

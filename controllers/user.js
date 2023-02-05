@@ -4,6 +4,7 @@ const {
     InvalidQueryParam,
     MissingQueryParam,
     UserNotFound,
+    EmptyRequestBody,
     ActionDenied,
 } = require('../utils/errors');
 
@@ -28,6 +29,8 @@ exports.profileMe = (req, res, next) => {
 
 exports.profileUpdate = async (req, res, next) => {
     try {
+        const isSettingUp = req.originalUrl === '/api/v1/user/profile/setup';
+
         if (req.user) {
             const validParams = [
                 'scholarID',
@@ -46,6 +49,25 @@ exports.profileUpdate = async (req, res, next) => {
                 'socialLinks',
             ];
 
+            if (
+                isSettingUp &&
+                Object.keys(req.body).length !== validParams.length
+            ) {
+                const err = new EmptyRequestBody(
+                    `All the parameters are required. ${validParams} are the required parameters for profile setup`
+                );
+                err.status = 400;
+                return next(err);
+            }
+
+            if (Object.keys(req.body).length === 0) {
+                const err = new EmptyRequestBody(
+                    `Atleast one parameter in the body is required`
+                );
+                err.status = 400;
+                return next(err);
+            }
+
             Object.keys(req.body).forEach((el) => {
                 if (!validParams.includes(el)) {
                     const err = new InvalidQueryParam(
@@ -56,8 +78,6 @@ exports.profileUpdate = async (req, res, next) => {
                 }
             });
 
-            let user = await User.findByPk(req.user.authID);
-
             // if social link is not an array
             if (!Array.isArray(req.body.socialLinks)) {
                 const err = new InvalidQueryParam(
@@ -66,6 +86,8 @@ exports.profileUpdate = async (req, res, next) => {
                 err.status = 400;
                 return next(err);
             }
+
+            let user = await User.findByPk(req.user.authID);
 
             user.set({
                 scholarID: req.body.scholarID,
@@ -84,6 +106,10 @@ exports.profileUpdate = async (req, res, next) => {
                 socialLinks: req.body.socialLinks,
             });
 
+            if (isSettingUp) {
+                user.isVerified = true;
+            }
+
             user.updatedBy = req.user.authID;
 
             await user.save();
@@ -91,7 +117,9 @@ exports.profileUpdate = async (req, res, next) => {
             res.statusCode = 200;
             res.json({
                 ok: true,
-                message: 'Profile update successfully',
+                message: isSettingUp
+                    ? 'Profile setup successful'
+                    : 'Profile update successful',
                 user: user,
             });
         }

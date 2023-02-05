@@ -7,7 +7,12 @@ const GoogleStrategy = require('passport-google-oauth20').Strategy;
 // const { ExtractJwt } = require('passport-jwt');
 
 const User = require('../models/user');
-const { UserNotAuthorized, UserNotFound, NoTokenError } = require('./errors');
+const {
+    UserNotAuthorized,
+    UserNotFound,
+    NoTokenError,
+    ActionDenied,
+} = require('./errors');
 
 // Register the serializers for passport to be able to
 // access the user attributes while authentication
@@ -93,6 +98,10 @@ exports.decodeJwt = (token) => {
 exports.verifyUser = async (req, res, next) => {
     const token = req.headers.authorization;
 
+    // If the user is trying to setup their profile then we don't need to check
+    // isVerified flag
+    const isSettingUp = req.originalUrl === '/api/v1/user/profile/setup';
+
     if (!token) {
         const err = new NoTokenError(
             'Provide a valid token in the authorization header'
@@ -107,6 +116,14 @@ exports.verifyUser = async (req, res, next) => {
 
     if (!user) {
         const err = new UserNotFound('User not found for the provided token');
+        err.status = 401;
+        return next(err);
+    }
+
+    if (!user.isVerified && !isSettingUp) {
+        const err = new ActionDenied(
+            'Cannot perform this action. Complete user profile setup first.'
+        );
         err.status = 401;
         return next(err);
     }

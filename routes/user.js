@@ -24,6 +24,11 @@ userRouter
     .route('/profile/me')
     .get(cors.corsWithOptions, verifyUser, profileMe);
 
+// Setup and complete user profile for the first time
+userRouter
+    .route('/profile/setup')
+    .patch(cors.corsWithOptions, verifyUser, profileUpdate);
+
 // Update user profile
 userRouter
     .route('/profile/update')

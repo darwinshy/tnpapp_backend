@@ -9,10 +9,6 @@ const Job = sequelize.define('job', {
         allowNull: false,
         primaryKey: true,
     },
-    companyID: {
-        type: Company.companyID,
-        allowNull: false,
-    },
     year: {
         type: Sequelize.INTEGER,
         allowNull: false,
@@ -85,7 +81,6 @@ const Job = sequelize.define('job', {
     },
 });
 
-Job.belongTo(Company, { foreignKey: 'companyID' });
 Job.sync();
 
 module.exports = Job;

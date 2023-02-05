@@ -90,20 +90,7 @@ exports.profileUpdate = async (req, res, next) => {
             let user = await User.findByPk(req.user.authID);
 
             user.set({
-                scholarID: req.body.scholarID,
-                gradYear: req.body.gradYear,
-                firstName: req.body.firstName,
-                lastName: req.body.lastName,
-                branch: req.body.branch,
-                dob: req.body.dob,
-                whatsappContact: req.body.whatsappContact,
-                primaryContact: req.body.primaryContact,
-                secondaryContact: req.body.secondaryContact,
-                personalEmail: req.body.personalEmail,
-                professionalEmail: req.body.professionalEmail,
-                cgpa: req.body.cgpa,
-                resumeLink: req.body.resumeLink,
-                socialLinks: req.body.socialLinks,
+                ...req.body,
             });
 
             if (isSettingUp) {

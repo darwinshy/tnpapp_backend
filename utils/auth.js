@@ -120,6 +120,7 @@ exports.verifyUser = async (req, res, next) => {
         return next(err);
     }
 
+    // If the user is not verified and is not trying to setup their profile
     if (!user.isVerified && !isSettingUp) {
         const err = new ActionDenied(
             'Cannot perform this action. Complete user profile setup first.'

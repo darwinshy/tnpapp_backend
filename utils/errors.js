@@ -108,6 +108,17 @@ class InvalidQueryParam extends Error {
     }
 }
 
+class ActionDenied extends Error {
+    constructor(...params) {
+        super(...params);
+
+        if (Error.captureStackTrace) {
+            Error.captureStackTrace(this, ActionDenied);
+        }
+        this.name = 'ActionDenied';
+    }
+}
+
 const error = {
     100: 'EmptyRequestBody',
     101: 'ObjectNotFound',
@@ -129,5 +140,6 @@ module.exports = {
     NoTokenError,
     UserNotFound,
     InvalidQueryParam,
+    ActionDenied,
     error,
 };

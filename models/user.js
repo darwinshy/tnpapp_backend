@@ -101,6 +101,10 @@ const User = sequelize.define('user', {
         type: Sequelize.BOOLEAN,
         allowNull: false,
     },
+    updatedBy: {
+        type: Sequelize.STRING,
+        allowNull: true,
+    },
 });
 
 User.sync();

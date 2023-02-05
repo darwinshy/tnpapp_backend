@@ -50,6 +50,7 @@ exports.googlePassport = passport.use(
                     enrollStatus: true,
                     isVerified: false,
                     lastLogin: Date.now(),
+                    updatedBy: profile.id,
                     accessLevel: 'STUDENT',
                 });
 

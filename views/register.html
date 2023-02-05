@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Register</title>
+</head>
+
+<body>
+    <div class="container">
+        <h3>Registration Form</h3>
+        <form action="/register" id="form" method="post">
+            <div class="form-item"><label for="firstName">First Name</label>
+                <input type="text" required name="firstName" id="firstName">
+            </div>
+            <div class="form-item"><label for="lastName">Last Name</label>
+                <input type="text" required name="lastName" id="lastName">
+            </div>
+            <div class="form-item"><label for="dob">DOB</label>
+                <input type="date" required name="dob" id="dob">
+            </div>
+            <div class="form-item"><label for="scholarID">Scholar ID</label>
+                <input type="number" required min="1111111" max="1999999" name="scholarID" id="scholarID">
+            </div>
+            <div class="form-item"><label for="gradYear">grad Year</label>
+                <input type="number" required min="2000" max="2030" name="gradYear" id="gradYear">
+            </div>
+            <div class="form-item"><label for="branch">Branch</label>
+                <select required name="branch" id="branch">
+                    <option value="CSE">CSE</option>
+                    <option value="ECE">ECE</option>
+                    <option value="EE">EE</option>
+                    <option value="ME">ME</option>
+                    <option value="CE">CE</option>
+                    <option value="EIE">EIE</option>
+                </select>
+            </div>
+            <div class="form-item"><label for="whatsappContact">WhatsApp Contact</label>
+                <input type="number" required name="whatsappContact" id="whatsappContact">
+            </div>
+            <div class="form-item"><label for="primaryContact">Phone</label>
+                <input type="number" required name="primaryContact" id="primaryContact">
+            </div>
+            <div class="form-item"><label for="personalEmail">personal email</label>
+                <input type="email" required name="personalEmail" id="personalEmail">
+            </div>
+            <div class="form-item"><label for="inst-email">Institute email</label>
+                <input type="email" required name="inst-email" id="inst-email">
+            </div>
+            <div class="form-item"><label for="resumeLink">resume link</label>
+                <input type="text" required name="resumeLink" id="resumeLink">
+            </div>
+            <div class="form-item"><label for="cgpa">CGPA</label>
+                <input type="text" required name="cgpa" id="cgpa">
+            </div>
+            <button type="submit">Register</button>
+        </form>
+    </div>
+
+</body>
+<script>
+    let sampleForm = document.getElementById("form");
+
+    sampleForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        let form = e.currentTarget;
+        let url = form.action;
+
+        try {
+            let formData = new FormData(form);
+            let responseData = await postFormFieldsAsJson({ url, formData });
+            console.log(responseData);
+        } catch (error) {
+            console.error(`An has occured ${error}`);
+        }
+    })
+    async function postFormFieldsAsJson({ url, formData }) {
+        //Create an object from the form data entries
+        console.log(formData);
+        let formDataObject = Object.fromEntries(formData.entries());
+        // Format the plain form data as JSON
+        let formDataJsonString = JSON.stringify(formDataObject);
+
+        //Set the fetch options (headers, body)
+        let fetchOptions = {
+            //HTTP method set to POST.
+            method: "POST",
+            //Set the headers that specify you're sending a JSON body request and accepting JSON response
+            headers: {
+                "Content-Type": "application/json",
+                Accept: "application/json",
+            },
+            // POST request body as JSON string.
+            body: formDataJsonString,
+        };
+
+        //Get the response body as JSON.
+        //If the response was not OK, throw an error.
+        let res = await fetch(url, fetchOptions);
+        
+
+        //If the response is not ok throw an error (for debugging)
+        if (!res.ok) {
+            let error = await res.text();
+            throw new Error(error);
+        }
+        //If the response was OK, return the response body.
+        return res.json();
+    }
+</script>
+</html>
+

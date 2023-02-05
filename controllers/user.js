@@ -97,7 +97,7 @@ exports.profileUpdate = async (req, res, next) => {
     }
 };
 
-exports.profileEl = async (req, res, next) => {
+exports.elevate = async (req, res, next) => {
     try {
         if (req.user) {
             const scholarID = req.params.scholarID;
@@ -144,7 +144,7 @@ exports.profileEl = async (req, res, next) => {
     }
 };
 
-exports.profileSuperEl = async (req, res, next) => {
+exports.suelevate = async (req, res, next) => {
     try {
         if (req.user) {
             const authID = req.params.authID;

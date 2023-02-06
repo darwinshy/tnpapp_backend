@@ -89,9 +89,7 @@ exports.profileUpdate = async (req, res, next) => {
 
             let user = await User.findByPk(req.user.authID);
 
-            user.set({
-                ...req.body,
-            });
+            user.set({...req.body});
 
             if (isSettingUp) {
                 user.isVerified = true;

@@ -1,6 +1,5 @@
 const Sequelize = require('sequelize');
 const sequelize = require('../config/db');
-const Company = require('./company');
 
 const Job = sequelize.define('job', {
     jobID: {
@@ -49,7 +48,6 @@ const Job = sequelize.define('job', {
         type: Sequelize.ARRAY(Sequelize.STRING),
         allowNull: false,
     },
-
     eligibleDegrees: {
         type: Sequelize.ARRAY(Sequelize.STRING),
         allowNull: false,

@@ -41,7 +41,7 @@ app.use('/app', authRouter);
 // Setup up the router for endpoints for registered users
 app.use('/api/v1/user', userRouter);
 app.use('/api/v1/job', jobRouter);
-// app.use('/api/v1/company', companyRouter);
+app.use('/api/v1/company', companyRouter);
 
 // Middleware to server the static files from public directory
 app.use(express.static(path.join(__dirname, 'public')));

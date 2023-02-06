@@ -1,7 +1,6 @@
-// Check if the filters provided by the user are valid or not
-
 const { UserNotAuthorized } = require('./errors');
 
+// Check if the filters provided by the user are valid or not
 // and remove null values from the request body object
 exports.verifyJobFilters = (req, res, next) => {
     const validFilters = ['companyID', 'year', 'type', 'ctc'];
@@ -24,18 +23,10 @@ exports.verifyJobFilters = (req, res, next) => {
         }
     });
 
-    let nonNullFilters;
-
-    Object.keys(req.body).forEach((key) => {
-        if (req.body[key]) {
-            nonNullFilters = { ...nonNullFilters, [key]: req.body[key] };
-        }
-    });
-
     if (
-        nonNullFilters.year &&
+        req.body.year &&
         req.user.accessLevel !== 'ADMIN' &&
-        nonNullFilters.year !== req.user.gradYear
+        req.body.year !== req.user.gradYear
     ) {
         const err = new UserNotAuthorized(
             'You can only view jobs for your graduating year'
@@ -44,11 +35,10 @@ exports.verifyJobFilters = (req, res, next) => {
         return next(err);
     }
 
-    req.body = nonNullFilters;
-
     next();
 };
 
+// Check if the job type provided by the user is valid or not
 exports.verifyJobType = (req, res, next) => {
     if (!req.body.type) {
         next();

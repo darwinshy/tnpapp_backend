@@ -143,6 +143,22 @@ exports.verifyAdmin = (req, res, next) => {
     }
 };
 
+// This middleware verifies if the user is admin or coordinator
+exports.verifyAdminOrCoordinator = (req, res, next) => {
+    if (
+        req.user.accessLevel === 'ADMIN' ||
+        req.user.accessLevel === 'COORDINATOR'
+    ) {
+        next();
+    } else {
+        const err = new UserNotAuthorized(
+            "You don't have enough permission to perform this action"
+        );
+        err.status = 403;
+        next(err);
+    }
+};
+
 // This middleware verifies if the user is student or coordinator
 exports.verifyStudentOrCoordinator = (req, res, next) => {
     if (

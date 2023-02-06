@@ -16,7 +16,9 @@ exports.getJobByID = async (req, res, next) => {
         const jobID = req.params.jobID;
 
         if (!jobID) {
-            const err = new MissingQueryParam('jobID');
+            const err = new MissingQueryParam(
+                'jobID is missing in the query params'
+            );
             err.status = 400;
             return next(err);
         }
@@ -24,7 +26,7 @@ exports.getJobByID = async (req, res, next) => {
         let job = await Job.findByPk(jobID);
 
         if (!job) {
-            const err = new EmptyRecords('No jobs found');
+            const err = new EmptyRecords(`No job found with ID ${jobID}`);
             err.status = 404;
             return next(err);
         }
@@ -77,13 +79,85 @@ exports.getAllJobs = async (req, res, next) => {
     }
 };
 
+// Add a new job
+exports.addNewJob = async (req, res, next) => {
+    try {
+        const companyID = req.params.companyID;
+
+        if (!companyID) {
+            const err = new MissingQueryParam(
+                'companyID is missing in the query params'
+            );
+            err.status = 400;
+            return next(err);
+        }
+
+        if (req.user.gradYear !== req.body.year) {
+            const err = new ActionDenied(
+                'Your graduation year does not match the job year. You cannot create this job.'
+            );
+            err.status = 403;
+            return next(err);
+        }
+
+        const job = await Job.create({ ...req.body });
+
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        res.json({ ok: true, job: job });
+    } catch (error) {
+        next(error);
+    }
+};
+
+// Update a job
+exports.updateJob = async (req, res, next) => {
+    try {
+        const jobID = req.params.jobID;
+
+        if (!jobID) {
+            const err = new MissingQueryParam(
+                'jobID is missing in the query params'
+            );
+            err.status = 400;
+            return next(err);
+        }
+
+        const job = await Job.findByPk(jobID);
+
+        if (!job) {
+            const err = new EmptyRecords('No jobs found');
+            err.status = 404;
+            return next(err);
+        }
+
+        if (job.year !== req.user.gradYear) {
+            const err = new ActionDenied(
+                'Your graduation year does not match the job year. You cannot update this job.'
+            );
+            err.status = 403;
+            return next(err);
+        }
+
+        await job.update(req.body);
+
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        res.json({ ok: true, job: job });
+    } catch (error) {
+        next(error);
+    }
+};
+
 // Students and Coordinators can only access jobs for their grad year
 exports.getJobsByCompany = async (req, res, next) => {
     try {
         const companyID = req.params.companyID;
 
         if (!companyID) {
-            const err = new MissingQueryParam('companyID');
+            const err = new MissingQueryParam(
+                'companyID is missing in the query params'
+            );
             err.status = 400;
             return next(err);
         }

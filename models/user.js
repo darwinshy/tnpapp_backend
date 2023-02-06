@@ -7,6 +7,11 @@ const User = sequelize.define('user', {
         allowNull: false,
         primaryKey: true,
     },
+    // IF THE USER IS A HIRING MANAGER
+    companyID: {
+        type: Sequelize.STRING,
+        allowNull: true,
+    },
     scholarID: {
         type: Sequelize.STRING,
         allowNull: true,

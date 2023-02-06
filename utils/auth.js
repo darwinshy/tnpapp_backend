@@ -147,6 +147,22 @@ exports.verifyAdmin = (req, res, next) => {
     }
 };
 
+// This middleware verifies if the user is student or coordinator
+exports.verifyStudentOrCoordinator = (req, res, next) => {
+    if (
+        req.user.accessLevel === 'STUDENT' ||
+        req.user.accessLevel === 'COORDINATOR'
+    ) {
+        next();
+    } else {
+        const err = new UserNotAuthorized(
+            "You don't have enough permission to perform this action"
+        );
+        err.status = 403;
+        next(err);
+    }
+};
+
 // This middleware verifies if the user is a coordinator
 exports.verifyCoordinator = (req, res, next) => {
     if (req.user.accessLevel === 'COORDINATOR') {
@@ -161,8 +177,21 @@ exports.verifyCoordinator = (req, res, next) => {
 };
 
 // This middleware verifies if the user is a hiring manager
-exports.verifyHiringManager = (req, res, next) => {
+exports.verifyHR = (req, res, next) => {
     if (req.user.accessLevel === 'HIRINGMANAGER') {
+        next();
+    } else {
+        const err = new UserNotAuthorized(
+            "You don't have enough permission to perform this action"
+        );
+        err.status = 403;
+        next(err);
+    }
+};
+
+// This middleware verifies if the user is not a hiring manager
+exports.verifyNotHR = (req, res, next) => {
+    if (req.user.accessLevel !== 'HIRINGMANAGER') {
         next();
     } else {
         const err = new UserNotAuthorized(
@@ -185,30 +214,3 @@ exports.verifyStudent = (req, res, next) => {
         next(err);
     }
 };
-
-// Middleware implementation to verify a user based on JWT token, disables
-// session handling
-// exports.verifyUser = passport.authenticate('jwt', { session: false });
-
-// Implementation of the jsonwebtoken based passport strategy
-// passport.use(
-//     new JwtStrategy(
-//         {
-//             jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-//             secretOrKey: process.env.SECRET_KEY,
-//         },
-//         async (jwtPayload, done) => {
-//             console.log(jwtPayload);
-
-//             let user = await User.findByPk(jwtPayload._id);
-
-//             if (!user) {
-//                 const err = new UserNotFound('User not found');
-//                 err.status = 401;
-//                 done(null);
-//             }
-
-//             done(null, user);
-//         }
-//     )
-// );

@@ -17,7 +17,6 @@ const Job = sequelize.define('job', {
         type: Sequelize.STRING,
         allowNull: false,
     },
-
     type: {
         type: Sequelize.ENUM('INTERNSHIP', 'FTE', 'INTERNSHIP+FTE'),
         allowNull: false,

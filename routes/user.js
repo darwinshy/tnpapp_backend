@@ -7,7 +7,7 @@ const {
     profileUpdate,
     profileMe,
     elevate,
-    suelevate,
+    suElevate,
 } = require('../controllers/user');
 
 // Setting up the variables
@@ -42,7 +42,8 @@ userRouter
 // Elevate user access level direclty to admin
 userRouter
     .route('/profile/:authID/suelevate')
-    .patch(cors.corsWithOptions, verifyUser, verifyAdmin, suelevate);
+    .patch(cors.corsWithOptions, verifyUser, verifyAdmin, suElevate);
+
 // _____________________________________________________________________________
 
 module.exports = userRouter;

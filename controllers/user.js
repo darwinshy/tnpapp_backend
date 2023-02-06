@@ -162,7 +162,7 @@ exports.elevate = async (req, res, next) => {
     }
 };
 
-exports.suelevate = async (req, res, next) => {
+exports.suElevate = async (req, res, next) => {
     try {
         if (req.user) {
             const authID = req.params.authID;

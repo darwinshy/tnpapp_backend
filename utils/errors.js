@@ -119,6 +119,17 @@ class ActionDenied extends Error {
     }
 }
 
+class EmptyRecords extends Error {
+    constructor(...params) {
+        super(...params);
+
+        if (Error.captureStackTrace) {
+            Error.captureStackTrace(this, EmptyRecords);
+        }
+        this.name = 'EmptyRecords';
+    }
+}
+
 const error = {
     100: 'EmptyRequestBody',
     101: 'ObjectNotFound',
@@ -141,5 +152,6 @@ module.exports = {
     UserNotFound,
     InvalidQueryParam,
     ActionDenied,
+    EmptyRecords,
     error,
 };

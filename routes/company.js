@@ -18,7 +18,6 @@ companyRouter.use(express.json());
 
 // Middleware Handlers
 let verifyHandlers = [verifyAdminOrCoordinator, verifyJobParameters];
-let filterHandlers = [verifyJobFilters];
 
 // _____________________________________________________________________________
 // Routes

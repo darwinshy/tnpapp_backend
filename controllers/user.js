@@ -95,6 +95,8 @@ exports.profileUpdate = async (req, res, next) => {
 
             if (isSettingUp) {
                 user.isVerified = true;
+                user.enrollStatus = true;
+                user.accessLevel = 'STUDENT';
             }
 
             user.updatedBy = req.user.authID;
@@ -105,8 +107,8 @@ exports.profileUpdate = async (req, res, next) => {
             res.json({
                 ok: true,
                 message: isSettingUp
-                    ? 'Profile setup successful'
-                    : 'Profile update successful',
+                    ? 'Profile setup successful.'
+                    : 'Profile update successful.',
                 user: user,
             });
         }

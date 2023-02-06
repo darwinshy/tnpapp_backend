@@ -1,10 +1,7 @@
 const Job = require('../models/job');
 
 const {
-    InvalidQueryParam,
     MissingQueryParam,
-    UserNotFound,
-    EmptyRequestBody,
     ActionDenied,
     EmptyRecords,
 } = require('../utils/errors');
@@ -13,7 +10,7 @@ const {
 // Controller functions
 
 // Students and Coordinators can only access a job if the job year matches their
-// graduation year and hiring managers can only access jobs for their company
+// graduation year
 exports.getJobByID = async (req, res, next) => {
     try {
         const jobID = req.params.jobID;
@@ -29,17 +26,6 @@ exports.getJobByID = async (req, res, next) => {
         if (!job) {
             const err = new EmptyRecords('No jobs found');
             err.status = 404;
-            return next(err);
-        }
-
-        if (
-            req.user.accessLevel === 'HIRINGMANAGER' &&
-            job.companyID !== req.user.companyID
-        ) {
-            const err = new ActionDenied(
-                'You are not authorized to view jobs for other companies'
-            );
-            err.status = 403;
             return next(err);
         }
 
@@ -59,8 +45,7 @@ exports.getJobByID = async (req, res, next) => {
     }
 };
 
-// Students and Coordinators can only access jobs for their grad year and
-// hiring managers can only access jobs for their company
+// Students and Coordinators can only access jobs for their grad year
 exports.getAllJobs = async (req, res, next) => {
     try {
         let jobs;
@@ -75,12 +60,6 @@ exports.getAllJobs = async (req, res, next) => {
         ) {
             jobs = await Job.findAll({
                 where: { year: req.user.gradYear },
-            });
-        }
-
-        if (req.user.accessLevel === 'HIRINGMANAGER') {
-            jobs = await Job.findAll({
-                where: { companyID: req.user.companyID },
             });
         }
 
@@ -99,8 +78,6 @@ exports.getAllJobs = async (req, res, next) => {
 };
 
 // Students and Coordinators can only access jobs for their grad year
-// and hiring managers can only access jobs for their company so we
-// need to filter the results based on their companyID
 exports.getJobsByCompany = async (req, res, next) => {
     try {
         const companyID = req.params.companyID;
@@ -123,12 +100,6 @@ exports.getJobsByCompany = async (req, res, next) => {
         ) {
             jobs = await Job.findAll({
                 where: { companyID, year: req.user.gradYear },
-            });
-        }
-
-        if (req.user.accessLevel === 'HIRINGMANAGER') {
-            jobs = await Job.findAll({
-                where: { companyID, companyID: req.user.companyID },
             });
         }
 

@@ -1,11 +1,9 @@
 // Get the required modules
 const passport = require('passport');
 const jwt = require('jsonwebtoken');
-
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
-// const JwtStrategy = require('passport-jwt').Strategy;
-// const { ExtractJwt } = require('passport-jwt');
 
+// Get the required models
 const User = require('../models/user');
 const {
     UserNotAuthorized,
@@ -52,11 +50,9 @@ exports.googlePassport = passport.use(
 
                 user = new User({
                     authID: profile.id,
-                    enrollStatus: true,
                     isVerified: false,
                     lastLogin: Date.now(),
                     updatedBy: profile.id,
-                    accessLevel: 'STUDENT',
                 });
 
                 user.imageLink =
@@ -166,32 +162,6 @@ exports.verifyStudentOrCoordinator = (req, res, next) => {
 // This middleware verifies if the user is a coordinator
 exports.verifyCoordinator = (req, res, next) => {
     if (req.user.accessLevel === 'COORDINATOR') {
-        next();
-    } else {
-        const err = new UserNotAuthorized(
-            "You don't have enough permission to perform this action"
-        );
-        err.status = 403;
-        next(err);
-    }
-};
-
-// This middleware verifies if the user is a hiring manager
-exports.verifyHR = (req, res, next) => {
-    if (req.user.accessLevel === 'HIRINGMANAGER') {
-        next();
-    } else {
-        const err = new UserNotAuthorized(
-            "You don't have enough permission to perform this action"
-        );
-        err.status = 403;
-        next(err);
-    }
-};
-
-// This middleware verifies if the user is not a hiring manager
-exports.verifyNotHR = (req, res, next) => {
-    if (req.user.accessLevel !== 'HIRINGMANAGER') {
         next();
     } else {
         const err = new UserNotAuthorized(

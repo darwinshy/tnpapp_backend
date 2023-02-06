@@ -7,11 +7,6 @@ const User = sequelize.define('user', {
         allowNull: false,
         primaryKey: true,
     },
-    // IF THE USER IS A HIRING MANAGER
-    companyID: {
-        type: Sequelize.STRING,
-        allowNull: true,
-    },
     scholarID: {
         type: Sequelize.STRING,
         allowNull: true,
@@ -69,12 +64,7 @@ const User = sequelize.define('user', {
         allowNull: true,
     },
     accessLevel: {
-        type: Sequelize.ENUM(
-            'ADMIN',
-            'COORDINATOR',
-            'STUDENT',
-            'HIRINGMANAGER'
-        ),
+        type: Sequelize.ENUM('ADMIN', 'COORDINATOR', 'STUDENT'),
         allowNull: true,
     },
     cgpa: {

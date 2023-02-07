@@ -17,30 +17,27 @@ const companyRouter = express.Router();
 companyRouter.use(express.json());
 
 // Middleware Handlers
+let corsAndVerifyUser = [cors.corsWithOptions, verifyUser];
 let verifyHandlers = [verifyAdminOrCoordinator, verifyJobParameters];
 
 // _____________________________________________________________________________
 // Routes
 
 // Get company by ID
-companyRouter
-    .route('/:companyID')
-    .get(cors.corsWithOptions, verifyUser, getCompanyByID);
+companyRouter.route('/:companyID').get(...corsAndVerifyUser, getCompanyByID);
 
 // Get all company
-companyRouter
-    .route('/all')
-    .get(cors.corsWithOptions, verifyUser, getAllCompanies);
+companyRouter.route('/all').get(...corsAndVerifyUser, getAllCompanies);
 
 // Create a company
 companyRouter
     .route('/create')
-    .post(cors.corsWithOptions, verifyUser, ...verifyHandlers, addNewCompany);
+    .post(...corsAndVerifyUser, ...verifyHandlers, addNewCompany);
 
 // Update a job using by ID
 companyRouter
     .route('/:companyID/update')
-    .patch(cors.corsWithOptions, verifyUser, ...verifyHandlers, updateCompany);
+    .patch(...corsAndVerifyUser, ...verifyHandlers, updateCompany);
 
 // _____________________________________________________________________________
 

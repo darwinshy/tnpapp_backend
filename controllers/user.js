@@ -6,6 +6,7 @@ const {
     UserNotFound,
     EmptyRequestBody,
     ActionDenied,
+    MissingRequiredPayload,
 } = require('../utils/errors');
 
 // _____________________________________________________________________________
@@ -94,8 +95,9 @@ exports.profileUpdate = async (req, res, next) => {
             });
 
             if (isSettingUp) {
+                user.eop = false;
                 user.isVerified = true;
-                user.enrollStatus = true;
+                user.enrollStatus = false;
                 user.accessLevel = 'STUDENT';
             }
 
@@ -112,6 +114,60 @@ exports.profileUpdate = async (req, res, next) => {
                 user: user,
             });
         }
+    } catch (error) {
+        next(error);
+    }
+};
+
+exports.profileEOP = async (req, res, next) => {
+    try {
+        const scholarID = req.params.scholarID;
+        const { eop } = req.body;
+
+        if (!scholarID) {
+            const err = new MissingRequiredPayload(
+                'scholarID is missing in the query parameter'
+            );
+            err.status = 400;
+            return next(err);
+        }
+
+        if (!eop) {
+            const err = new MissingRequiredPayload(
+                'eop status is missing from the request body'
+            );
+            err.status = 400;
+            return next(err);
+        }
+
+        let user = await User.findOne({ where: { scholarID: scholarID } });
+
+        if (user.req.gradYear !== user.gradYear) {
+            const err = new ActionDenied(
+                'Coordinators and User should be from the same batch to perform this action'
+            );
+            err.status = 400;
+            return next(err);
+        }
+
+        if (user.eop === eop) {
+            const err = new ActionDenied(
+                'eop status same as provided. No changes performed'
+            );
+            err.status = 400;
+            return next(err);
+        }
+
+        user.eop = eop;
+        user.updatedBy = req.user.authID;
+
+        await user.save();
+
+        res.statusCode = 200;
+        res.json({
+            ok: true,
+            message: `User with ${user.scholarID} has now EOP status of ${eop}`,
+        });
     } catch (error) {
         next(error);
     }
@@ -146,17 +202,15 @@ exports.elevate = async (req, res, next) => {
                 return next(err);
             }
 
-            user.set({
-                accessLevel: 'COORDINATOR',
-                updatedBy: req.user.authID,
-            });
+            user.accessLevel = 'COORDINATOR';
+            user.updatedBy = req.user.authID;
 
             await user.save();
 
             res.statusCode = 200;
             res.json({
                 ok: true,
-                message: `User with ${user.scholarID} is now a coordinator`,
+                message: `User with scholar ID ${user.scholarID} is now a coordinator`,
             });
         }
     } catch (error) {
@@ -193,14 +247,15 @@ exports.suElevate = async (req, res, next) => {
                 return next(err);
             }
 
-            user.set({ accessLevel: 'ADMIN', updatedBy: req.user.authID });
+            user.accessLevel = 'ADMIN';
+            user.updatedBy = req.user.authID;
 
             await user.save();
 
             res.statusCode = 200;
             res.json({
                 ok: true,
-                message: `User with ${user.authID} is now an admin`,
+                message: `User with scholar ID ${user.authID} is now an admin`,
             });
         }
     } catch (error) {

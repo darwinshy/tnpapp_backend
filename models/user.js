@@ -99,6 +99,10 @@ const User = sequelize.define('user', {
         type: Sequelize.STRING,
         allowNull: true,
     },
+    eop: {
+        type: Sequelize.BOOLEAN,
+        allowNull: true,
+    },
 });
 
 User.sync();

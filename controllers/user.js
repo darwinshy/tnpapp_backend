@@ -132,15 +132,23 @@ exports.profileEOP = async (req, res, next) => {
             return next(err);
         }
 
-        if (!eop) {
+        if (!Array.from(Object.keys(req.body).values()).includes('eop')) {
             const err = new MissingRequiredPayload(
-                'eop status is missing from the request body'
+                'eop field is missing from the request body'
             );
             err.status = 400;
             return next(err);
         }
 
         let user = await User.findOne({ where: { scholarID: scholarID } });
+
+        if (!user) {
+            const err = new UserNotFound(
+                `No user found with the scholarID ${scholarID}`
+            );
+            err.status = 400;
+            return next(err);
+        }
 
         if (user.req.gradYear !== user.gradYear) {
             const err = new ActionDenied(
@@ -255,7 +263,7 @@ exports.suElevate = async (req, res, next) => {
             res.statusCode = 200;
             res.json({
                 ok: true,
-                message: `User with scholar ID ${user.authID} is now an admin`,
+                message: `User with auth ID ${user.authID} is now an admin`,
             });
         }
     } catch (error) {

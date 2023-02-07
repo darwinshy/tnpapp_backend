@@ -41,7 +41,7 @@ exports.getJobByID = async (req, res, next) => {
 
         res.statusCode = 200;
         res.setHeader('Content-Type', 'application/json');
-        json({ ok: true, job: job });
+        res.json({ ok: true, job: job });
     } catch (error) {
         next(error);
     }

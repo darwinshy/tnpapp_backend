@@ -4,7 +4,7 @@ const router = express.Router();
 
 // router.use(bodyParser.urlencoded({ extended: false }))
 router.get('/', (req, res) => {
-    res.send('Welcome to the home page');
+    res.send('This is the API root');
 });
 router.get("/register", (req, res) => {
     res.sendFile("register.html", { root: "views" });

@@ -1,16 +1,16 @@
 // Import all the install packages
 const express = require('express');
 const passport = require('passport');
-
-// Import the custom internal modules
-const User = require('../models/user');
-const { getToken } = require('../utils/auth');
+const { googleAuthCallback } = require('../controllers/auth');
 
 // Initialise the authentication router
 const authRouter = express.Router();
 
 // Include the body parser to parse the body in json
 authRouter.use(express.json());
+
+// _____________________________________________________________________________
+// Auth routes
 
 // Google OAuth authentication route
 authRouter.get(
@@ -21,35 +21,12 @@ authRouter.get(
 // Google OAuth authentication callback endpoint
 authRouter.get(
     '/auth/google/callback',
-    passport.authenticate('google', {
-        failureRedirect: '/home',
-        failureMessage: true,
-    }),
-    async (req, res, next) => {
-        try {
-            if (req.user) {
-                const token = getToken({ _id: req.user.authID });
-                const user = await User.findByPk(req.user.authID);
-
-                user.lastLogin = Date.now();
-                user.accessToken = token;
-
-                await user.save();
-
-                res.send({
-                    ok: true,
-                    message: 'User authenticated successfully.',
-                    accessToken: token,
-                    authID: req.user.authID,
-                });
-            }
-        } catch (err) {
-            console.error(err);
-            const error = new Error('Something went wrong. Please try again.');
-            error.status = 500;
-            next(error);
-        }
-    }
+    passport.authenticate('google', { failureMessage: true }),
+    googleAuthCallback
 );
 
+// _____________________________________________________________________________
+
 module.exports = authRouter;
+
+// _____________________________________________________________________________

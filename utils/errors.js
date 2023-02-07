@@ -108,6 +108,28 @@ class InvalidQueryParam extends Error {
     }
 }
 
+class ActionDenied extends Error {
+    constructor(...params) {
+        super(...params);
+
+        if (Error.captureStackTrace) {
+            Error.captureStackTrace(this, ActionDenied);
+        }
+        this.name = 'ActionDenied';
+    }
+}
+
+class EmptyRecords extends Error {
+    constructor(...params) {
+        super(...params);
+
+        if (Error.captureStackTrace) {
+            Error.captureStackTrace(this, EmptyRecords);
+        }
+        this.name = 'EmptyRecords';
+    }
+}
+
 const error = {
     100: 'EmptyRequestBody',
     101: 'ObjectNotFound',
@@ -129,5 +151,7 @@ module.exports = {
     NoTokenError,
     UserNotFound,
     InvalidQueryParam,
+    ActionDenied,
+    EmptyRecords,
     error,
 };

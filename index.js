@@ -10,6 +10,8 @@ require('dotenv').config();
 const indexRouter = require('./routes/');
 const authRouter = require('./routes/auth');
 const userRouter = require('./routes/user');
+const jobRouter = require('./routes/job');
+const companyRouter = require('./routes/company');
 
 // Initialise the express application
 const app = express();
@@ -32,13 +34,14 @@ app.disable('x-powered-by');
 app.use(passport.initialize());
 app.use(passport.session());
 
-// Setup up the router for home page and endpoints
-// for unregistered users (signup/login/logout)
+// Setup up the router for home page and endpoints for unregistered users
 app.use('/', indexRouter);
 app.use('/app', authRouter);
 
-//
+// Setup up the router for endpoints for registered users
 app.use('/api/v1/user', userRouter);
+app.use('/api/v1/job', jobRouter);
+app.use('/api/v1/company', companyRouter);
 
 // Middleware to server the static files from public directory
 app.use(express.static(path.join(__dirname, 'public')));

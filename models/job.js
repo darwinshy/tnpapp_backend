@@ -3,73 +3,79 @@ const sequelize = require('../config/db');
 
 const Job = sequelize.define('job', {
     jobID: {
-        type: Sequelize.STRING,
+        type: Sequelize.INTEGER,
+        autoIncrement: true,
         allowNull: false,
         primaryKey: true,
     },
-    position: {
-        type: Sequelize.STRING,
-        allowNull: true,
-    },
-    yaer: {
+    year: {
         type: Sequelize.INTEGER,
-        allowNull: true,
+        allowNull: false,
+    },
+    title: {
+        type: Sequelize.STRING,
+        allowNull: false,
     },
     type: {
-        type: Sequelize.ENUM(
-            'FULLTIME',
-            'INTERNSHIP',
-            'INTERN+FTE',
-            'INTERN+PPO')
+        type: Sequelize.ENUM('INTERNSHIP', 'FTE', 'INTERNSHIP+FTE'),
+        allowNull: false,
     },
-    internDuration: {
-        type: Sequelize.NUMBER,
-        allowNull: true,
-    },
-    jdLink: {
+    jobDescriptionDriveLink: {
         type: Sequelize.STRING,
-        allowNull: true,
-    },
-    postDate: {
-        type: Sequelize.DATE,
-        allowNull: false
+        allowNull: false,
     },
     ctc: {
-        type: Sequelize.NUMBER,
-        allowNull: true,
+        type: Sequelize.DOUBLE,
+        allowNull: false,
     },
-    bond: {
-        type: Sequelize.NUMBER,
-        allowNull: true,
+    basePay: {
+        type: Sequelize.DOUBLE,
+        allowNull: false,
+    },
+    benifits: {
+        type: Sequelize.STRING,
+        allowNull: false,
+    },
+    stipend: {
+        type: Sequelize.DOUBLE,
+        allowNull: false,
+    },
+    bondYear: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
     },
     eligibleBranches: {
-        type: Sequelize.ARRAY,
-        allowNull: true,
+        type: Sequelize.ARRAY(Sequelize.STRING),
+        allowNull: false,
     },
-    eligibleCourses: {
-        type: Sequelize.ARRAY,
-        allowNull: true,
+    eligibleDegrees: {
+        type: Sequelize.ARRAY(Sequelize.STRING),
+        allowNull: false,
     },
-    eligibility: {
+    eligibilityDetail: {
         type: Sequelize.STRING,
-        allowNull: true,
+        allowNull: false,
     },
-    noOfRounds: {
-        type: Sequelize.NUMBER,
-        allowNull: true,
+    selectionRoundCount: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
     },
-    process: {
+    selectionProcessDetail: {
         type: Sequelize.STRING,
-        allowNull: true,
+        allowNull: false,
     },
     jobLocations: {
-        type: Sequelize.ARRAY,
-        allowNull: true,
+        type: Sequelize.ARRAY(Sequelize.STRING),
+        allowNull: false,
+    },
+    whatsappGroupLink: {
+        type: Sequelize.STRING,
+        allowNull: false,
     },
     notes: {
-        type: sequelize.STRING,
-        allowNull: true
-    }
+        type: Sequelize.STRING,
+        allowNull: false,
+    },
 });
 
 Job.sync();

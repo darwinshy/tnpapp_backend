@@ -1,13 +1,16 @@
 // Get the required modules
 const passport = require('passport');
 const jwt = require('jsonwebtoken');
-
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
-// const JwtStrategy = require('passport-jwt').Strategy;
-// const { ExtractJwt } = require('passport-jwt');
 
+// Get the required models
 const User = require('../models/user');
-const { UserNotAuthorized, UserNotFound, NoTokenError } = require('./errors');
+const {
+    UserNotAuthorized,
+    UserNotFound,
+    NoTokenError,
+    ActionDenied,
+} = require('./errors');
 
 // Register the serializers for passport to be able to
 // access the user attributes while authentication
@@ -47,10 +50,9 @@ exports.googlePassport = passport.use(
 
                 user = new User({
                     authID: profile.id,
-                    enrollStatus: true,
                     isVerified: false,
                     lastLogin: Date.now(),
-                    accessLevel: 'STUDENT',
+                    updatedBy: profile.id,
                 });
 
                 user.imageLink =
@@ -92,6 +94,10 @@ exports.decodeJwt = (token) => {
 exports.verifyUser = async (req, res, next) => {
     const token = req.headers.authorization;
 
+    // If the user is trying to setup their profile then we don't need to check
+    // isVerified flag
+    const isSettingUp = req.originalUrl === '/api/v1/user/profile/setup';
+
     if (!token) {
         const err = new NoTokenError(
             'Provide a valid token in the authorization header'
@@ -110,6 +116,15 @@ exports.verifyUser = async (req, res, next) => {
         return next(err);
     }
 
+    // If the user is not verified and is not trying to setup their profile
+    if (!user.isVerified && !isSettingUp) {
+        const err = new ActionDenied(
+            'Cannot perform this action. Complete user profile setup first.'
+        );
+        err.status = 401;
+        return next(err);
+    }
+
     req.user = user;
 
     next();
@@ -118,6 +133,38 @@ exports.verifyUser = async (req, res, next) => {
 // This middleware verifies if the user is an admin
 exports.verifyAdmin = (req, res, next) => {
     if (req.user.accessLevel === 'ADMIN') {
+        next();
+    } else {
+        const err = new UserNotAuthorized(
+            "You don't have enough permission to perform this action"
+        );
+        err.status = 403;
+        next(err);
+    }
+};
+
+// This middleware verifies if the user is admin or coordinator
+exports.verifyAdminOrCoordinator = (req, res, next) => {
+    if (
+        req.user.accessLevel === 'ADMIN' ||
+        req.user.accessLevel === 'COORDINATOR'
+    ) {
+        next();
+    } else {
+        const err = new UserNotAuthorized(
+            "You don't have enough permission to perform this action"
+        );
+        err.status = 403;
+        next(err);
+    }
+};
+
+// This middleware verifies if the user is student or coordinator
+exports.verifyStudentOrCoordinator = (req, res, next) => {
+    if (
+        req.user.accessLevel === 'STUDENT' ||
+        req.user.accessLevel === 'COORDINATOR'
+    ) {
         next();
     } else {
         const err = new UserNotAuthorized(
@@ -141,19 +188,6 @@ exports.verifyCoordinator = (req, res, next) => {
     }
 };
 
-// This middleware verifies if the user is a hiring manager
-exports.verifyHiringManager = (req, res, next) => {
-    if (req.user.accessLevel === 'HIRINGMANAGER') {
-        next();
-    } else {
-        const err = new UserNotAuthorized(
-            "You don't have enough permission to perform this action"
-        );
-        err.status = 403;
-        next(err);
-    }
-};
-
 // This middleware verifies if the user is a student
 exports.verifyStudent = (req, res, next) => {
     if (req.user.accessLevel === 'STUDENT') {
@@ -166,30 +200,3 @@ exports.verifyStudent = (req, res, next) => {
         next(err);
     }
 };
-
-// Middleware implementation to verify a user based on JWT token, disables
-// session handling
-// exports.verifyUser = passport.authenticate('jwt', { session: false });
-
-// Implementation of the jsonwebtoken based passport strategy
-// passport.use(
-//     new JwtStrategy(
-//         {
-//             jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-//             secretOrKey: process.env.SECRET_KEY,
-//         },
-//         async (jwtPayload, done) => {
-//             console.log(jwtPayload);
-
-//             let user = await User.findByPk(jwtPayload._id);
-
-//             if (!user) {
-//                 const err = new UserNotFound('User not found');
-//                 err.status = 401;
-//                 done(null);
-//             }
-
-//             done(null, user);
-//         }
-//     )
-// );

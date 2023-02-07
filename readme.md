@@ -4,5 +4,5 @@ An application that displays details of the upcoming, past and current on-going 
 
 ### STACK
 
--   Backend: NodeJS
+-   Backend: ExpressJS
 -   Database: PostgreSQL

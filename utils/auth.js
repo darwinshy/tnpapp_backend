@@ -113,9 +113,7 @@ exports.verifyUser = async (req, res, next) => {
     });
 
     if (!user) {
-        const err = new UserNotFound(
-            'models.user not found for the provided token'
-        );
+        const err = new UserNotFound('User not found for the provided token');
         err.status = 401;
         return next(err);
     }

@@ -1,11 +1,11 @@
-const User = require('../models/user');
+const { models } = require('../sequilize');
 const { getToken } = require('../utils/auth');
 
 exports.googleAuthCallback = async (req, res, next) => {
     try {
         if (req.user) {
             const token = getToken({ _id: req.user.authID });
-            const user = await User.findByPk(req.user.authID);
+            const user = await models.user.findByPk(req.user.authID);
 
             user.lastLogin = Date.now();
             user.accessToken = token;

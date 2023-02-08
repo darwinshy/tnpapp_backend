@@ -1,4 +1,4 @@
-const { MissingRequiredPayload } = require('./errors');
+const { MissingRequiredPayload, InvalidQueryParam } = require('./errors');
 
 exports.verifyCompanyParameters = (req, res, next) => {
     const isCreating = req.originalUrl.includes('create');
@@ -14,7 +14,7 @@ exports.verifyCompanyParameters = (req, res, next) => {
 
     if (isCreating && requiredParams.length !== params.length) {
         const err = new MissingRequiredPayload(
-            `One or more required parameter are missing. ${requiredParams} are the required parameters.`
+            `One or more required parameter are missing or you have an extra parameter in the body. ${requiredParams} are the required parameters`
         );
         err.status = 400;
         return next(err);

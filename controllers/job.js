@@ -1,4 +1,4 @@
-const Job = require('../models/job');
+const { models } = require('../sequilize');
 
 const {
     MissingQueryParam,
@@ -23,7 +23,7 @@ exports.getJobByID = async (req, res, next) => {
             return next(err);
         }
 
-        let job = await Job.findByPk(jobID);
+        let job = await models.job.findByPk(jobID);
 
         if (!job) {
             const err = new EmptyRecords(`No job found with ID ${jobID}`);
@@ -53,14 +53,14 @@ exports.getAllJobs = async (req, res, next) => {
         let jobs;
 
         if (req.user.accessLevel === 'ADMIN') {
-            jobs = await Job.findAll();
+            jobs = await models.job.findAll();
         }
 
         if (
             req.user.accessLevel === 'COORDINATOR' ||
             req.user.accessLevel === 'STUDENT'
         ) {
-            jobs = await Job.findAll({
+            jobs = await models.job.findAll({
                 where: { year: req.user.gradYear },
             });
         }
@@ -100,7 +100,7 @@ exports.addNewJob = async (req, res, next) => {
             return next(err);
         }
 
-        const job = await Job.create({ ...req.body });
+        const job = await models.job.create({ ...req.body });
 
         res.statusCode = 200;
         res.setHeader('Content-Type', 'application/json');
@@ -123,7 +123,7 @@ exports.updateJob = async (req, res, next) => {
             return next(err);
         }
 
-        const job = await Job.findByPk(jobID);
+        const job = await models.job.findByPk(jobID);
 
         if (!job) {
             const err = new EmptyRecords('No jobs found');
@@ -165,14 +165,14 @@ exports.getJobsByCompany = async (req, res, next) => {
         let jobs;
 
         if (req.user.accessLevel === 'ADMIN') {
-            jobs = await Job.findAll({ where: { companyID } });
+            jobs = await models.job.findAll({ where: { companyID } });
         }
 
         if (
             req.user.accessLevel === 'COORDINATOR' ||
             req.user.accessLevel === 'STUDENT'
         ) {
-            jobs = await Job.findAll({
+            jobs = await models.job.findAll({
                 where: { companyID, year: req.user.gradYear },
             });
         }
@@ -196,7 +196,7 @@ exports.getFilteredJobs = async (req, res, next) => {
     try {
         let jobs;
 
-        jobs = await Job.findAll({ where: req.body });
+        jobs = await models.job.findAll({ where: req.body });
 
         if (!jobs || jobs.length === 0) {
             const err = new EmptyRecords('No jobs found');

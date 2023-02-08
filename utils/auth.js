@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 
 // Get the required models
-const User = require('../models/user');
+const { models } = require('../sequilize');
 const {
     UserNotAuthorized,
     UserNotFound,
@@ -42,13 +42,13 @@ exports.googlePassport = passport.use(
                     return cb(err, null);
                 }
 
-                let user = await User.findByPk(profile.id);
+                let user = await models.user.findByPk(profile.id);
 
                 if (user) {
                     return cb(null, user);
                 }
 
-                user = new User({
+                user = new models.user({
                     authID: profile.id,
                     isVerified: false,
                     lastLogin: Date.now(),
@@ -108,10 +108,14 @@ exports.verifyUser = async (req, res, next) => {
 
     const tokenValue = token.split(' ')[1];
 
-    let user = await User.findOne({ where: { accessToken: tokenValue } });
+    let user = await models.user.findOne({
+        where: { accessToken: tokenValue },
+    });
 
     if (!user) {
-        const err = new UserNotFound('User not found for the provided token');
+        const err = new UserNotFound(
+            'models.user not found for the provided token'
+        );
         err.status = 401;
         return next(err);
     }

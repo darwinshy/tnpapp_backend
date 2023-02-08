@@ -8,7 +8,7 @@ const {
     addNewCompany,
     updateCompany,
 } = require('../controllers/company');
-const { verifyJobParameters } = require('../utils/job');
+const { verifyCompanyParameters } = require('../utils/company');
 
 // Setting up the router
 const companyRouter = express.Router();
@@ -18,25 +18,27 @@ companyRouter.use(express.json());
 
 // Middleware Handlers
 let corsAndVerifyUser = [cors.corsWithOptions, verifyUser];
-let verifyHandlers = [verifyAdminOrCoordinator, verifyJobParameters];
+let verifyHandlers = [verifyAdminOrCoordinator, verifyCompanyParameters];
 
 // _____________________________________________________________________________
 // Routes
 
-// Get company by ID
-companyRouter.route('/:companyID').get(...corsAndVerifyUser, getCompanyByID);
-
 // Get all company
-companyRouter.route('/all').get(...corsAndVerifyUser, getAllCompanies);
+companyRouter.route('/').get(...corsAndVerifyUser, getAllCompanies);
 
 // Create a company
 companyRouter
     .route('/create')
     .post(...corsAndVerifyUser, ...verifyHandlers, addNewCompany);
 
+// Get company by ID
+companyRouter
+    .route('/profile/:companyID')
+    .get(...corsAndVerifyUser, getCompanyByID);
+
 // Update a job using by ID
 companyRouter
-    .route('/:companyID/update')
+    .route('/update/:companyID')
     .patch(...corsAndVerifyUser, ...verifyHandlers, updateCompany);
 
 // _____________________________________________________________________________

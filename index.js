@@ -2,16 +2,16 @@ const express = require('express');
 const passport = require('passport');
 const path = require('path');
 const session = require('express-session');
-const sequelize = require('./config/db');
+const sequelize = require('./sequilize');
 
 require('dotenv').config();
 
 // Import all the internal routers from the app
 const indexRouter = require('./routes/');
+const companyRouter = require('./routes/company');
 const authRouter = require('./routes/auth');
 const userRouter = require('./routes/user');
 const jobRouter = require('./routes/job');
-const companyRouter = require('./routes/company');
 
 // Initialise the express application
 const app = express();

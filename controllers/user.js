@@ -1,4 +1,4 @@
-const User = require('../models/user');
+const { models } = require('../sequilize');
 
 const {
     InvalidQueryParam,
@@ -88,7 +88,7 @@ exports.profileUpdate = async (req, res, next) => {
                 return next(err);
             }
 
-            let user = await User.findByPk(req.user.authID);
+            let user = await models.user.findByPk(req.user.authID);
 
             user.set({
                 ...req.body,
@@ -140,7 +140,9 @@ exports.profileEOP = async (req, res, next) => {
             return next(err);
         }
 
-        let user = await User.findOne({ where: { scholarID: scholarID } });
+        let user = await models.user.findOne({
+            where: { scholarID: scholarID },
+        });
 
         if (!user) {
             const err = new UserNotFound(
@@ -152,7 +154,7 @@ exports.profileEOP = async (req, res, next) => {
 
         if (user.req.gradYear !== user.gradYear) {
             const err = new ActionDenied(
-                'Coordinators and User should be from the same batch to perform this action'
+                'Coordinators and models.user should be from the same batch to perform this action'
             );
             err.status = 400;
             return next(err);
@@ -174,7 +176,7 @@ exports.profileEOP = async (req, res, next) => {
         res.statusCode = 200;
         res.json({
             ok: true,
-            message: `User with ${user.scholarID} has now EOP status of ${eop}`,
+            message: `models.user with ${user.scholarID} has now EOP status of ${eop}`,
         });
     } catch (error) {
         next(error);
@@ -194,7 +196,9 @@ exports.elevate = async (req, res, next) => {
                 return next(err);
             }
 
-            let user = await User.findOne({ where: { scholarID: scholarID } });
+            let user = await models.user.findOne({
+                where: { scholarID: scholarID },
+            });
 
             if (!user) {
                 const err = new UserNotFound(
@@ -205,7 +209,9 @@ exports.elevate = async (req, res, next) => {
             }
 
             if (user.accessLevel === 'COORDINATOR') {
-                const err = new ActionDenied(`User is already a coordinator`);
+                const err = new ActionDenied(
+                    `models.user is already a coordinator`
+                );
                 err.status = 400;
                 return next(err);
             }
@@ -218,7 +224,7 @@ exports.elevate = async (req, res, next) => {
             res.statusCode = 200;
             res.json({
                 ok: true,
-                message: `User with scholar ID ${user.scholarID} is now a coordinator`,
+                message: `models.user with scholar ID ${user.scholarID} is now a coordinator`,
             });
         }
     } catch (error) {
@@ -239,7 +245,7 @@ exports.suElevate = async (req, res, next) => {
                 return next(err);
             }
 
-            let user = await User.findByPk(authID);
+            let user = await models.user.findByPk(authID);
 
             if (!user) {
                 const err = new UserNotFound(
@@ -250,7 +256,7 @@ exports.suElevate = async (req, res, next) => {
             }
 
             if (user.accessLevel === 'ADMIN') {
-                const err = new ActionDenied(`User is already an admin`);
+                const err = new ActionDenied(`models.user is already an admin`);
                 err.status = 400;
                 return next(err);
             }
@@ -263,7 +269,7 @@ exports.suElevate = async (req, res, next) => {
             res.statusCode = 200;
             res.json({
                 ok: true,
-                message: `User with auth ID ${user.authID} is now an admin`,
+                message: `models.user with auth ID ${user.authID} is now an admin`,
             });
         }
     } catch (error) {

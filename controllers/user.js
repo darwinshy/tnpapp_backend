@@ -119,6 +119,46 @@ exports.profileUpdate = async (req, res, next) => {
     }
 };
 
+exports.profileScholarID = async (req, res, next) => {
+    try {
+        const scholarID = req.params.scholarID;
+
+        if (!scholarID) {
+            const err = new MissingQueryParam(
+                `scholarID is missing in the query params`
+            );
+            err.status = 400;
+            return next(err);
+        }
+
+        let user = await models.user.findOne({
+            where: { scholarID: scholarID },
+        });
+
+        if (!user) {
+            const err = new UserNotFound(
+                `No user found with the scholarID ${scholarID}`
+            );
+
+            err.status = 400;
+            return next(err);
+        }
+
+        // remove sensitive data
+        user = user.toJSON();
+        delete user.accessToken;
+        delete user.authID;
+
+        res.statusCode = 200;
+        res.json({
+            ok: true,
+            user: user,
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
 exports.profileEOP = async (req, res, next) => {
     try {
         const scholarID = req.params.scholarID;
@@ -152,9 +192,9 @@ exports.profileEOP = async (req, res, next) => {
             return next(err);
         }
 
-        if (user.req.gradYear !== user.gradYear) {
+        if (req.user.gradYear !== user.gradYear) {
             const err = new ActionDenied(
-                'Coordinators and models.user should be from the same batch to perform this action'
+                'Coordinators and user should be from the same batch to perform this action'
             );
             err.status = 400;
             return next(err);
@@ -176,21 +216,21 @@ exports.profileEOP = async (req, res, next) => {
         res.statusCode = 200;
         res.json({
             ok: true,
-            message: `models.user with ${user.scholarID} has now EOP status of ${eop}`,
+            message: `User with ${user.scholarID} has now EOP status of ${eop}`,
         });
     } catch (error) {
         next(error);
     }
 };
 
-exports.elevate = async (req, res, next) => {
+exports.profileElevate = async (req, res, next) => {
     try {
         if (req.user) {
             const scholarID = req.params.scholarID;
 
             if (!scholarID) {
-                const err = new MissingQueryParam(
-                    `scholarID is missing in the query params`
+                const err = new MissingRequiredPayload(
+                    'scholarID is missing in the query parameter'
                 );
                 err.status = 400;
                 return next(err);
@@ -202,16 +242,14 @@ exports.elevate = async (req, res, next) => {
 
             if (!user) {
                 const err = new UserNotFound(
-                    `No user found with the given scholarID`
+                    `No user found with the given scholarID ${scholarID}`
                 );
                 err.status = 400;
                 return next(err);
             }
 
             if (user.accessLevel === 'COORDINATOR') {
-                const err = new ActionDenied(
-                    `models.user is already a coordinator`
-                );
+                const err = new ActionDenied(`User is already a coordinator`);
                 err.status = 400;
                 return next(err);
             }
@@ -224,7 +262,7 @@ exports.elevate = async (req, res, next) => {
             res.statusCode = 200;
             res.json({
                 ok: true,
-                message: `models.user with scholar ID ${user.scholarID} is now a coordinator`,
+                message: `User with scholar ID ${user.scholarID} is now a coordinator`,
             });
         }
     } catch (error) {
@@ -232,31 +270,33 @@ exports.elevate = async (req, res, next) => {
     }
 };
 
-exports.suElevate = async (req, res, next) => {
+exports.superProfileElevate = async (req, res, next) => {
     try {
         if (req.user) {
-            const authID = req.params.authID;
+            const scholarID = req.params.scholarID;
 
-            if (!authID) {
-                const err = new MissingQueryParam(
-                    `authID is missing in the query params`
+            if (!scholarID) {
+                const err = new MissingRequiredPayload(
+                    'scholarID is missing in the query parameter'
                 );
                 err.status = 400;
                 return next(err);
             }
 
-            let user = await models.user.findByPk(authID);
+            let user = await models.user.findOne({
+                where: { scholarID: scholarID },
+            });
 
             if (!user) {
                 const err = new UserNotFound(
-                    `No user found with the given authID`
+                    `No user found with the given scholarID ${scholarID}`
                 );
                 err.status = 400;
                 return next(err);
             }
 
             if (user.accessLevel === 'ADMIN') {
-                const err = new ActionDenied(`models.user is already an admin`);
+                const err = new ActionDenied(`user is already an admin`);
                 err.status = 400;
                 return next(err);
             }
@@ -269,7 +309,7 @@ exports.suElevate = async (req, res, next) => {
             res.statusCode = 200;
             res.json({
                 ok: true,
-                message: `models.user with auth ID ${user.authID} is now an admin`,
+                message: `User with auth ID ${user.authID} is now an admin`,
             });
         }
     } catch (error) {

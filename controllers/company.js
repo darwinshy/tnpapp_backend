@@ -15,7 +15,7 @@ exports.getCompanyByID = async (req, res, next) => {
     try {
         const companyID = req.params.companyID;
 
-        if (typeof companyID !== 'number') {
+        if (isNaN(companyID)) {
             const err = new InvalidQueryParam(
                 'companyID should be of type number'
             );

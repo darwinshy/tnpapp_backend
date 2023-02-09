@@ -146,7 +146,7 @@ exports.verifyAdmin = (req, res, next) => {
 };
 
 // This middleware verifies if the user is admin or coordinator
-exports.verifyAdminOrCoordinator = (req, res, next) => {
+exports.verifyAOC = (req, res, next) => {
     if (
         req.user.accessLevel === 'ADMIN' ||
         req.user.accessLevel === 'COORDINATOR'

@@ -1,7 +1,7 @@
 const express = require('express');
 
 const cors = require('../utils/cors');
-const { verifyUser, verifyAdminOrCoordinator } = require('../utils/auth');
+const { verifyUser, verifyAOC } = require('../utils/auth');
 const {
     getJobByID,
     getAllJobs,
@@ -21,7 +21,7 @@ jobRouter.use(express.json());
 
 // Middleware Handlers
 let corsAndVerifyUser = [cors.corsWithOptions, verifyUser];
-let verifyHandlers = [verifyAdminOrCoordinator, verifyJobParameters];
+let verifyHandlers = [verifyAOC, verifyJobParameters];
 let filterHandlers = [verifyJobFilters, verifyJobType];
 
 // _____________________________________________________________________________

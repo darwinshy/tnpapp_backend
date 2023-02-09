@@ -1,7 +1,7 @@
 const express = require('express');
 
 const cors = require('../utils/cors');
-const { verifyUser, verifyAdminOrCoordinator } = require('../utils/auth');
+const { verifyUser, verifyAOC } = require('../utils/auth');
 const {
     getCompanyByID,
     getAllCompanies,
@@ -18,13 +18,13 @@ companyRouter.use(express.json());
 
 // Middleware Handlers
 let corsAndVerifyUser = [cors.corsWithOptions, verifyUser];
-let verifyHandlers = [verifyAdminOrCoordinator, verifyCompanyParameters];
+let verifyHandlers = [verifyAOC, verifyCompanyParameters];
 
 // _____________________________________________________________________________
 // Routes
 
 // Get all company
-companyRouter.route('/').get(...corsAndVerifyUser, getAllCompanies);
+companyRouter.route('/all').get(...corsAndVerifyUser, getAllCompanies);
 
 // Create a company
 companyRouter

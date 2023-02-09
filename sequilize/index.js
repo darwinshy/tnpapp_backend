@@ -10,28 +10,22 @@ const sequelize = new Sequelize('db', 'tnp', 'password', {
         acquire: 30000,
         idle: 10000,
     },
+    logging: false,
 });
 
 const modelDefiners = [
     require('./models/user'),
     require('./models/company'),
     require('./models/job'),
-];
-
-const associationDefiners = [
-    require('./models/userCompany'),
-    require('./models/userJob'),
-    require('./models/coordinatorCompany'),
+    require('./associations/userCompany'),
+    require('./associations/userJob'),
+    require('./associations/coordinatorCompany'),
+    require('./associations/jobCompany'),
 ];
 
 // We define all models according to their files.
 for (const modelDefiner of modelDefiners) {
     modelDefiner(sequelize);
-}
-
-// We define all associations according to their files.
-for (const associationDefiner of associationDefiners) {
-    associationDefiner(sequelize);
 }
 
 // We execute any extra setup after the models are defined, such as adding associations.

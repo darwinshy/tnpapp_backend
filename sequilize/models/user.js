@@ -1,6 +1,6 @@
 const Sequelize = require('sequelize');
 
-module.exports = (sequelize) => {
+module.exports = (sequelize) =>
     sequelize.define('user', {
         authID: {
             type: Sequelize.STRING,
@@ -104,4 +104,3 @@ module.exports = (sequelize) => {
             allowNull: true,
         },
     });
-};

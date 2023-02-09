@@ -24,12 +24,6 @@ const companies = [
 ];
 
 exports.createCompanies = async (res) => {
-    res.companies = [];
-    for (let i = 0; i < companies.length; i++) {
-        let company = new models.company(companies[i]);
-
-        await company.save();
-
-        res.companies.push(company);
-    }
+    res.companies = companies;
+    await models.company.bulkCreate(companies);
 };

@@ -1,8 +1,10 @@
 const { models } = require('../sequilize');
 const sequelize = require('../sequilize');
+const successLogs = require('./logs');
 
 const { createUsers } = require('./users/user');
 const { createCompanies } = require('./company/list');
+const { createJobs } = require('./jobs/list');
 
 require('dotenv').config();
 
@@ -14,8 +16,13 @@ const main = async (res) => {
         await setupDatabase();
 
         await createUsers(res);
-
         await createCompanies(res);
+        await createJobs(res);
+
+        // const company = await models.company.findByPk(1);
+        // let user = await models.user.findOne({
+        //     where: { scholarID: '1912033' },
+        // });
 
         await sequelize.close();
 
@@ -23,7 +30,7 @@ const main = async (res) => {
 
         process.exit();
     } catch (err) {
-        console.error('Unable to connect to the database:', err);
+        console.error(err);
     }
 };
 
@@ -36,34 +43,18 @@ const setupDatabase = async () => {
 
     await models.job.sync();
     await models.job.destroy({ where: {} });
-};
 
-const successLogs = async (res) => {
-    console.log('\033c');
-    console.log('Database synced');
+    await models.UserCompany.sync();
+    await models.UserCompany.destroy({ where: {} });
 
-    console.log('-------------------------------------------------');
-    console.log('User creation completed\n');
-    console.log('[ADMIN]          : ', res.adminUser.firstName);
-    console.log(res.adminUser.accessToken, '\n');
-    console.log('[COORDINATOR]    : ', res.coordinatorUser.firstName);
-    console.log(res.coordinatorUser.accessToken, '\n');
-    console.log('[STUDENT]        : ', res.studentUser.firstName);
-    console.log(res.studentUser.accessToken, '\n');
+    await models.UserJob.sync();
+    await models.UserJob.destroy({ where: {} });
 
-    // create a txt file and write access tokens
-    const fs = require('fs');
-    const path = require('path');
-    const filePath = path.join(__dirname, 'accessTokens.txt');
-    const data = `ADMIN: ${res.adminUser.accessToken}\nCOORDINATOR: ${res.coordinatorUser.accessToken}\nSTUDENT: ${res.studentUser.accessToken}`;
-    fs.writeFileSync(filePath, data);
+    await models.CoordinatorCompany.sync();
+    await models.CoordinatorCompany.destroy({ where: {} });
 
-    console.log('-------------------------------------------------');
-    console.log('Company creation completed\n');
-    res.companies.forEach((company) => {
-        console.log(`${company.companyID} : ${company.companyName}`);
-    });
-    console.log('-------------------------------------------------');
+    await models.JobCompany.sync();
+    await models.JobCompany.destroy({ where: {} });
 };
 
 main(res);

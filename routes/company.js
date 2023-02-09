@@ -33,12 +33,12 @@ companyRouter
 
 // Get company by ID
 companyRouter
-    .route('/profile/:companyID')
+    .route('/:companyID/profile')
     .get(...corsAndVerifyUser, getCompanyByID);
 
 // Update a job using by ID
 companyRouter
-    .route('/update/:companyID')
+    .route('/:companyID/update')
     .patch(...corsAndVerifyUser, ...verifyHandlers, updateCompany);
 
 // _____________________________________________________________________________

@@ -27,24 +27,24 @@ let filterHandlers = [verifyJobFilters, verifyJobType];
 // _____________________________________________________________________________
 // Routes
 
-// Get job by ID
-jobRouter.route('/:jobID').get(...corsAndVerifyUser, getJobByID);
-
 // Get all jobs
-jobRouter.route('/all').get(...corsAndVerifyUser, getAllJobs);
+jobRouter.route('/').get(...corsAndVerifyUser, getAllJobs);
 
 // Create a new job for a company
 jobRouter
     .route('/:companyID/create')
     .post(...corsAndVerifyUser, ...verifyHandlers, addNewJob);
 
+// Get job by ID
+jobRouter.route('/:jobID/profile').get(...corsAndVerifyUser, getJobByID);
+
 // Update a job using jobID
 jobRouter
     .route('/:jobID/update')
     .patch(...corsAndVerifyUser, ...verifyHandlers, updateJob);
 
-// Get jobs by company
-jobRouter.route('/:companyID/all').get(...corsAndVerifyUser, getJobsByCompany);
+// Get jobs by company ID
+jobRouter.route('/:companyID/jobs').get(...corsAndVerifyUser, getJobsByCompany);
 
 // Filter jobs by various criteria
 jobRouter

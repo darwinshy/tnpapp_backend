@@ -15,11 +15,14 @@
         "express": "^4.17.15",
         "express-session": "^1.17.3",
         "jsonwebtoken": "^8.5.1",
+        "openapi-types": ">=7",
         "passport": "^0.6.0",
         "passport-google-oauth20": "^2.0.0",
         "passport-jwt": "^4.0.1",
         "pg": "^8.9.0",
-        "sequelize": "^6.3.5"
+        "sequelize": "^6.3.5",
+        "swagger-jsdoc": "^6.2.8",
+        "swagger-ui-express": "^4.6.0"
     },
     "devDependencies": {
         "husky": "^8.0.3",

@@ -1,8 +1,11 @@
 const express = require('express');
 const passport = require('passport');
+const bodyParser = require('body-parser');
 const path = require('path');
 const session = require('express-session');
 const sequelize = require('./sequilize');
+const swaggerUi = require('swagger-ui-express');
+const specs = require('./swagger');
 
 require('dotenv').config();
 
@@ -33,6 +36,13 @@ app.disable('x-powered-by');
 // access user attributes while authentication
 app.use(passport.initialize());
 app.use(passport.session());
+
+// Setting up the swagger documentation
+app.use(
+    '/api-docs',
+    swaggerUi.serve,
+    swaggerUi.setup(specs, { explorer: true })
+);
 
 // Setup up the router for home page and endpoints for unregistered users
 app.use('/', indexRouter);

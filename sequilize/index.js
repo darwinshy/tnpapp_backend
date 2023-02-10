@@ -17,6 +17,9 @@ const modelDefiners = [
     require('./models/user'),
     require('./models/company'),
     require('./models/job'),
+];
+
+const associationDefiners = [
     require('./associations/userCompany'),
     require('./associations/userJob'),
     require('./associations/coordinatorCompany'),
@@ -26,6 +29,11 @@ const modelDefiners = [
 // We define all models according to their files.
 for (const modelDefiner of modelDefiners) {
     modelDefiner(sequelize);
+}
+
+// We execute each association definers inside the modelDefiners array.
+for (const associationDefiner of associationDefiners) {
+    associationDefiner(sequelize);
 }
 
 // We execute any extra setup after the models are defined, such as adding associations.

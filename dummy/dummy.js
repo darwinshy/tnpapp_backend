@@ -19,10 +19,12 @@ const main = async (res) => {
         await createCompanies(res);
         await createJobs(res);
 
-        // const company = await models.company.findByPk(1);
-        // let user = await models.user.findOne({
-        //     where: { scholarID: '1912033' },
-        // });
+        const company = await models.company.findByPk(1);
+        let user = await models.user.findOne({
+            where: { scholarID: '1912033' },
+        });
+
+        await user.addCompany(company, { through: { year: 2020 } });
 
         await sequelize.close();
 

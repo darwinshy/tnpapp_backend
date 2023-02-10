@@ -1,7 +1,7 @@
 const Sequelize = require('sequelize');
 
 module.exports = (sequelize) => {
-    sequelize.define('JobCompany', {
+    sequelize.define('opening', {
         year: {
             type: Sequelize.INTEGER,
             allowNull: false,

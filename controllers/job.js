@@ -82,7 +82,17 @@ exports.getAllJobs = async (req, res, next) => {
 // Add a new job
 exports.addNewJob = async (req, res, next) => {
     try {
-        const companyID = req.params.companyID;
+        let companyID = req.params.companyID;
+
+        if (isNaN(companyID)) {
+            const err = new InvalidQueryParam(
+                'companyID should be of type number'
+            );
+            err.status = 400;
+            return next(err);
+        }
+
+        companyID = parseInt(companyID);
 
         if (!companyID) {
             const err = new MissingQueryParam(
@@ -100,11 +110,54 @@ exports.addNewJob = async (req, res, next) => {
             return next(err);
         }
 
-        const job = await models.job.create({ ...req.body });
+        const company = await models.company.findByPk(companyID);
+
+        if (!company) {
+            const err = new EmptyRecords(
+                `No company found with ID ${companyID}`
+            );
+            err.status = 404;
+            return next(err);
+        }
+
+        let jobYear = req.body.year;
+        let jobCompanyRelation;
+
+        // check whether the job already exists with the same title and a relation to the same company with the same year
+        const job = await models.job.findOne({
+            where: { title: req.body.title },
+        });
+
+        console.log(job);
+
+        if (job) {
+            jobCompanyRelation = await models.JobCompany.findOne({
+                where: {
+                    jobID: job.jobID,
+                    companyID: companyID,
+                    year: jobYear,
+                },
+            });
+        }
+
+        if (jobCompanyRelation) {
+            const err = new ActionDenied(
+                'A job with the same title already exists for this company and year'
+            );
+            err.status = 403;
+            return next(err);
+        }
+
+        delete req.body.jobYear;
+
+        const newJob = await models.job.create(req.body);
+        const newJobCompanyRelation = await company.addJob(newJob, {
+            through: { year: jobYear },
+        });
 
         res.statusCode = 200;
         res.setHeader('Content-Type', 'application/json');
-        res.json({ ok: true, job: job });
+        res.json({ ok: true, job: job, company: newJobCompanyRelation });
     } catch (error) {
         next(error);
     }

@@ -20,9 +20,8 @@ const modelDefiners = [
 ];
 
 const associationDefiners = [
-    require('./associations/userCompany'),
     require('./associations/userJob'),
-    require('./associations/coordinatorCompany'),
+    require('./associations/userCompany'),
     require('./associations/jobCompany'),
 ];
 

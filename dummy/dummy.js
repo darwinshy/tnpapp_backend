@@ -5,6 +5,8 @@ const successLogs = require('./logs');
 const { createUsers } = require('./users/user');
 const { createCompanies } = require('./company/list');
 const { createJobs } = require('./jobs/list');
+const createCoordinators = require('./coordinators');
+const createOpenings = require('./openings');
 
 require('dotenv').config();
 
@@ -19,12 +21,8 @@ const main = async (res) => {
         await createCompanies(res);
         await createJobs(res);
 
-        const company = await models.company.findByPk(1);
-        let user = await models.user.findOne({
-            where: { scholarID: '1912033' },
-        });
-
-        await user.addCompany(company, { through: { year: 2020 } });
+        await createCoordinators(res);
+        await createOpenings(res);
 
         await sequelize.close();
 
@@ -46,17 +44,14 @@ const setupDatabase = async () => {
     await models.job.sync();
     await models.job.destroy({ where: {} });
 
-    await models.UserCompany.sync();
-    await models.UserCompany.destroy({ where: {} });
+    await models.application.sync();
+    await models.application.destroy({ where: {} });
 
-    await models.UserJob.sync();
-    await models.UserJob.destroy({ where: {} });
+    await models.coordinator.sync();
+    await models.coordinator.destroy({ where: {} });
 
-    await models.CoordinatorCompany.sync();
-    await models.CoordinatorCompany.destroy({ where: {} });
-
-    await models.JobCompany.sync();
-    await models.JobCompany.destroy({ where: {} });
+    await models.opening.sync();
+    await models.opening.destroy({ where: {} });
 };
 
 main(res);

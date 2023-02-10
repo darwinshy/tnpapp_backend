@@ -1,6 +1,6 @@
 const Sequelize = require('sequelize');
 
-module.exports = (sequelize) =>
+module.exports = (sequelize) => {
     sequelize.define('job', {
         jobID: {
             type: Sequelize.INTEGER,
@@ -13,6 +13,10 @@ module.exports = (sequelize) =>
             allowNull: true,
         },
         title: {
+            type: Sequelize.STRING,
+            allowNull: true,
+        },
+        titleDesciption: {
             type: Sequelize.STRING,
             allowNull: true,
         },
@@ -77,3 +81,4 @@ module.exports = (sequelize) =>
             allowNull: true,
         },
     });
+};

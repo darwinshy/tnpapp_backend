@@ -35,13 +35,13 @@ exports.verifyJobParameters = (req, res, next) => {
 
     const params = Object.keys(req.body);
 
-    if (isCreating && requiredParams.length !== params.length) {
-        const err = new MissingRequiredPayload(
-            `One or more required parameter are missing. ${requiredParams} are the required parameters.`
-        );
-        err.status = 400;
-        return next(err);
-    }
+    // if (isCreating && requiredParams.length !== params.length) {
+    //     const err = new MissingRequiredPayload(
+    //         `One or more required parameter are missing. ${requiredParams} are the required parameters.`
+    //     );
+    //     err.status = 400;
+    //     return next(err);
+    // }
 
     if (params.length === 0) {
         const err = new MissingRequiredPayload(

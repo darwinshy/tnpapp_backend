@@ -1,7 +1,7 @@
 const Sequelize = require('sequelize');
 
 module.exports = (sequelize) => {
-    sequelize.define('UserJob', {
+    sequelize.define('application', {
         year: {
             type: Sequelize.INTEGER,
             allowNull: false,

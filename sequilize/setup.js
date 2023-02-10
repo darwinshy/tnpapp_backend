@@ -1,57 +1,41 @@
 const setupAssociations = (sequelize) => {
-    const {
-        user,
-        company,
-        job,
-        UserCompany,
-        UserJob,
-        CoordinatorCompany,
-        JobCompany,
-    } = sequelize.models;
+    const { user, company, job, application, coordinator, opening } =
+        sequelize.models;
 
     // Association for user and company (coordinator)
     user.belongsToMany(company, {
-        through: CoordinatorCompany,
+        through: coordinator,
         foreignKey: 'coordinatorID',
         otherKey: 'companyID',
     });
     company.belongsToMany(user, {
-        through: CoordinatorCompany,
+        through: coordinator,
         foreignKey: 'companyID',
         otherKey: 'coordinatorID',
     });
 
     // Association for company and job (posted)
     job.belongsToMany(company, {
-        through: JobCompany,
+        through: opening,
+        foreignKey: 'jobID',
+        otherKey: 'companyID',
+    });
+    company.belongsToMany(job, {
+        through: opening,
         foreignKey: 'companyID',
         otherKey: 'jobID',
     });
-    company.hasMany(job, {
-        foreignKey: 'companyID',
-        sourceKey: 'companyID',
-    });
 
     // Association for user and company (applied)
-    user.belongsToMany(company, {
-        through: UserCompany,
-        foreignKey: 'userID',
-        otherKey: 'companyID',
-    });
-    company.belongsToMany(user, {
-        through: UserCompany,
-        foreignKey: 'companyID',
-        otherKey: 'userID',
-    });
 
     // Association for user and job (applied)
     user.belongsToMany(job, {
-        through: UserJob,
+        through: application,
         foreignKey: 'userID',
         otherKey: 'jobID',
     });
     job.belongsToMany(user, {
-        through: UserJob,
+        through: application,
         foreignKey: 'jobID',
         otherKey: 'userID',
     });

@@ -3,16 +3,16 @@ const { models } = require('../sequilize');
 const successLogs = async (res) => {
     // console.log('\033c');
     console.log('------------------------------------------------');
-    console.log('*                  Database synced             *');
+    console.log('◦ Database synced                              ◦');
     console.log('------------------------------------------------');
-    console.log('-          Added associations for models       -');
+    console.log('◦ Added associations for models                ◦');
     console.log('------------------------------------------------');
     console.log('user', models.user.associations);
     console.log('company', models.company.associations);
     console.log('job', models.job.associations);
 
     console.log('------------------------------------------------');
-    console.log('-              User creation completed         -');
+    console.log('◦ User Created                                 ◦');
     console.log('------------------------------------------------');
     console.log('[ADMIN]          : ', res.adminUser.firstName);
     console.log(res.adminUser.accessToken, '\n');
@@ -29,15 +29,25 @@ const successLogs = async (res) => {
     fs.writeFileSync(filePath, data);
 
     console.log('------------------------------------------------');
-    console.log('-             Company creation completed       -');
+    console.log('◦ Companies Created                            ◦');
     console.log('------------------------------------------------');
     res.companies.forEach((company) =>
         console.log(`${company.companyID} : ${company.companyName}`)
     );
     console.log('------------------------------------------------');
-    console.log('-             Job creation completed           -');
+    console.log('◦ Job Openings Created                         ◦');
     console.log('------------------------------------------------');
     res.jobs.forEach((job) => console.log(`${job.jobID} : ${job.title}`));
+    console.log('------------------------------------------------');
+    console.log('◦ Coordinator creation completed               ◦');
+    console.log('------------------------------------------------');
+    console.log('Shashwat: ', res.coordinators.Shashwat);
+    console.log('Daniyal: ', res.coordinators.Daniyal);
+    console.log('------------------------------------------------');
+    console.log('◦ Opening creation completed                   ◦');
+    console.log('------------------------------------------------');
+    console.log('Amazon: ', res.openings.Amazon);
+    console.log('Google: ', res.openings.Google);
     console.log('------------------------------------------------');
 };
 

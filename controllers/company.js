@@ -1,11 +1,6 @@
 const { models } = require('../sequilize');
 
-const {
-    MissingQueryParam,
-    ActionDenied,
-    EmptyRecords,
-    InvalidQueryParam,
-} = require('../utils/errors');
+const { ActionDenied, EmptyRecords } = require('../utils/errors');
 
 // _____________________________________________________________________________
 // Controller functions
@@ -14,24 +9,7 @@ const {
 exports.getCompanyByID = async (req, res, next) => {
     try {
         const companyID = req.params.companyID;
-
-        if (isNaN(companyID)) {
-            const err = new InvalidQueryParam(
-                'companyID should be of type number'
-            );
-            err.status = 400;
-            return next(err);
-        }
-
-        if (!companyID) {
-            const err = new MissingQueryParam(
-                'companyID is missing in the query params'
-            );
-            err.status = 400;
-            return next(err);
-        }
-
-        let company = await models.company.findByPk(companyID);
+        const company = await models.company.findByPk(companyID);
 
         if (!company) {
             const err = new EmptyRecords('No company found');
@@ -76,9 +54,7 @@ exports.addNewCompany = async (req, res, next) => {
         });
 
         if (doesCompanyEx) {
-            const err = new ActionDenied(
-                `A company with the name ${companyName} already exists`
-            );
+            const err = new ActionDenied(`A company with the name ${companyName} already exists`);
             err.status = 400;
             return next(err);
         }
@@ -102,21 +78,10 @@ exports.addNewCompany = async (req, res, next) => {
 exports.updateCompany = async (req, res, next) => {
     try {
         const companyID = req.params.companyID;
-
-        if (!companyID) {
-            const err = new MissingQueryParam(
-                'companyID is missing in the query params'
-            );
-            err.status = 400;
-            return next(err);
-        }
-
         const company = await models.company.findByPk(companyID);
 
         if (!company) {
-            const err = new EmptyRecords(
-                `No company found with ID ${companyID}`
-            );
+            const err = new EmptyRecords(`No company found with ID ${companyID}`);
             err.status = 404;
             return next(err);
         }

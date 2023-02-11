@@ -50,10 +50,7 @@ exports.profileUpdate = async (req, res, next) => {
                 'socialLinks',
             ];
 
-            if (
-                isSettingUp &&
-                Object.keys(req.body).length !== validParams.length
-            ) {
+            if (isSettingUp && Object.keys(req.body).length !== validParams.length) {
                 const err = new EmptyRequestBody(
                     `All the parameters are required. ${validParams} are the required parameters for profile setup`
                 );
@@ -62,18 +59,14 @@ exports.profileUpdate = async (req, res, next) => {
             }
 
             if (Object.keys(req.body).length === 0) {
-                const err = new EmptyRequestBody(
-                    `Atleast one parameter in the body is required`
-                );
+                const err = new EmptyRequestBody(`Atleast one parameter in the body is required`);
                 err.status = 400;
                 return next(err);
             }
 
             Object.keys(req.body).forEach((el) => {
                 if (!validParams.includes(el)) {
-                    const err = new InvalidQueryParam(
-                        `${el} is not a valid params`
-                    );
+                    const err = new InvalidQueryParam(`${el} is not a valid params`);
                     err.status = 400;
                     return next(err);
                 }
@@ -81,9 +74,7 @@ exports.profileUpdate = async (req, res, next) => {
 
             // if social link is not an array
             if (!Array.isArray(req.body.socialLinks)) {
-                const err = new InvalidQueryParam(
-                    `socialLinks should be an array`
-                );
+                const err = new InvalidQueryParam(`socialLinks should be an array`);
                 err.status = 400;
                 return next(err);
             }
@@ -108,9 +99,7 @@ exports.profileUpdate = async (req, res, next) => {
             res.statusCode = 200;
             res.json({
                 ok: true,
-                message: isSettingUp
-                    ? 'Profile setup successful.'
-                    : 'Profile update successful.',
+                message: isSettingUp ? 'Profile setup successful.' : 'Profile update successful.',
                 user: user,
             });
         }
@@ -123,22 +112,12 @@ exports.profileScholarID = async (req, res, next) => {
     try {
         const scholarID = req.params.scholarID;
 
-        if (!scholarID) {
-            const err = new MissingQueryParam(
-                `scholarID is missing in the query params`
-            );
-            err.status = 400;
-            return next(err);
-        }
-
         let user = await models.user.findOne({
             where: { scholarID: scholarID },
         });
 
         if (!user) {
-            const err = new UserNotFound(
-                `No user found with the scholarID ${scholarID}`
-            );
+            const err = new UserNotFound(`No user found with the scholarID ${scholarID}`);
 
             err.status = 400;
             return next(err);
@@ -165,17 +144,13 @@ exports.profileEOP = async (req, res, next) => {
         const { eop } = req.body;
 
         if (!scholarID) {
-            const err = new MissingRequiredPayload(
-                'scholarID is missing in the query parameter'
-            );
+            const err = new MissingRequiredPayload('scholarID is missing in the query parameter');
             err.status = 400;
             return next(err);
         }
 
         if (!Array.from(Object.keys(req.body).values()).includes('eop')) {
-            const err = new MissingRequiredPayload(
-                'eop field is missing from the request body'
-            );
+            const err = new MissingRequiredPayload('eop field is missing from the request body');
             err.status = 400;
             return next(err);
         }
@@ -185,25 +160,19 @@ exports.profileEOP = async (req, res, next) => {
         });
 
         if (!user) {
-            const err = new UserNotFound(
-                `No user found with the scholarID ${scholarID}`
-            );
+            const err = new UserNotFound(`No user found with the scholarID ${scholarID}`);
             err.status = 400;
             return next(err);
         }
 
         if (req.user.gradYear !== user.gradYear) {
-            const err = new ActionDenied(
-                'Coordinators and user should be from the same batch to perform this action'
-            );
+            const err = new ActionDenied('Coordinators and user should be from the same batch to perform this action');
             err.status = 400;
             return next(err);
         }
 
         if (user.eop === eop) {
-            const err = new ActionDenied(
-                'eop status same as provided. No changes performed'
-            );
+            const err = new ActionDenied('eop status same as provided. No changes performed');
             err.status = 400;
             return next(err);
         }
@@ -225,46 +194,40 @@ exports.profileEOP = async (req, res, next) => {
 
 exports.profileElevate = async (req, res, next) => {
     try {
-        if (req.user) {
-            const scholarID = req.params.scholarID;
+        const scholarID = req.params.scholarID;
 
-            if (!scholarID) {
-                const err = new MissingRequiredPayload(
-                    'scholarID is missing in the query parameter'
-                );
-                err.status = 400;
-                return next(err);
-            }
-
-            let user = await models.user.findOne({
-                where: { scholarID: scholarID },
-            });
-
-            if (!user) {
-                const err = new UserNotFound(
-                    `No user found with the given scholarID ${scholarID}`
-                );
-                err.status = 400;
-                return next(err);
-            }
-
-            if (user.accessLevel === 'COORDINATOR') {
-                const err = new ActionDenied(`User is already a coordinator`);
-                err.status = 400;
-                return next(err);
-            }
-
-            user.accessLevel = 'COORDINATOR';
-            user.updatedBy = req.user.authID;
-
-            await user.save();
-
-            res.statusCode = 200;
-            res.json({
-                ok: true,
-                message: `User with scholar ID ${user.scholarID} is now a coordinator`,
-            });
+        if (!scholarID) {
+            const err = new MissingRequiredPayload('scholarID is missing in the query parameter');
+            err.status = 400;
+            return next(err);
         }
+
+        let user = await models.user.findOne({
+            where: { scholarID: scholarID },
+        });
+
+        if (!user) {
+            const err = new UserNotFound(`No user found with the given scholarID ${scholarID}`);
+            err.status = 400;
+            return next(err);
+        }
+
+        if (user.accessLevel === 'COORDINATOR') {
+            const err = new ActionDenied(`User is already a coordinator`);
+            err.status = 400;
+            return next(err);
+        }
+
+        user.accessLevel = 'COORDINATOR';
+        user.updatedBy = req.user.authID;
+
+        await user.save();
+
+        res.statusCode = 200;
+        res.json({
+            ok: true,
+            message: `User with scholar ID ${user.scholarID} is now a coordinator`,
+        });
     } catch (error) {
         next(error);
     }
@@ -272,46 +235,40 @@ exports.profileElevate = async (req, res, next) => {
 
 exports.superProfileElevate = async (req, res, next) => {
     try {
-        if (req.user) {
-            const scholarID = req.params.scholarID;
+        const scholarID = req.params.scholarID;
 
-            if (!scholarID) {
-                const err = new MissingRequiredPayload(
-                    'scholarID is missing in the query parameter'
-                );
-                err.status = 400;
-                return next(err);
-            }
-
-            let user = await models.user.findOne({
-                where: { scholarID: scholarID },
-            });
-
-            if (!user) {
-                const err = new UserNotFound(
-                    `No user found with the given scholarID ${scholarID}`
-                );
-                err.status = 400;
-                return next(err);
-            }
-
-            if (user.accessLevel === 'ADMIN') {
-                const err = new ActionDenied(`user is already an admin`);
-                err.status = 400;
-                return next(err);
-            }
-
-            user.accessLevel = 'ADMIN';
-            user.updatedBy = req.user.authID;
-
-            await user.save();
-
-            res.statusCode = 200;
-            res.json({
-                ok: true,
-                message: `User with auth ID ${user.authID} is now an admin`,
-            });
+        if (!scholarID) {
+            const err = new MissingRequiredPayload('scholarID is missing in the query parameter');
+            err.status = 400;
+            return next(err);
         }
+
+        let user = await models.user.findOne({
+            where: { scholarID: scholarID },
+        });
+
+        if (!user) {
+            const err = new UserNotFound(`No user found with the given scholarID ${scholarID}`);
+            err.status = 400;
+            return next(err);
+        }
+
+        if (user.accessLevel === 'ADMIN') {
+            const err = new ActionDenied(`user is already an admin`);
+            err.status = 400;
+            return next(err);
+        }
+
+        user.accessLevel = 'ADMIN';
+        user.updatedBy = req.user.authID;
+
+        await user.save();
+
+        res.statusCode = 200;
+        res.json({
+            ok: true,
+            message: `User with auth ID ${user.authID} is now an admin`,
+        });
     } catch (error) {
         next(error);
     }

@@ -15,17 +15,15 @@ const jobs = [
         bondYear: 1,
         eligibleBranches: ['CSE', 'ECE', 'EEE'],
         eligibleDegrees: ['B.TECH', 'M.TECH'],
-        eligibilityDetail:
-            'All the students are eligible who have CGPA greater than 8.0',
+        eligibilityDetail: 'All the students are eligible who have CGPA greater than 8.0',
         selectionRoundCount: 3,
-        selectionProcessDetail:
-            'The selection process will be based on the performance in the interview rounds.',
+        selectionProcessDetail: 'The selection process will be based on the performance in the interview rounds.',
         jobLocations: ['Bangalore', 'Hyderabad', 'Gurugram'],
         whatsappGroupLink: '',
     },
     {
         jobID: 2,
-        year: 2021,
+        year: 2023,
         title: 'SA',
         titleDescription: 'Solution Architect',
         type: 'FTE',
@@ -37,11 +35,9 @@ const jobs = [
         bondYear: 1,
         eligibleBranches: ['CSE', 'ECE', 'EEE'],
         eligibleDegrees: ['B.TECH', 'M.TECH'],
-        eligibilityDetail:
-            'All the students are eligible who have CGPA greater than 8.0',
+        eligibilityDetail: 'All the students are eligible who have CGPA greater than 8.0',
         selectionRoundCount: 3,
-        selectionProcessDetail:
-            'The selection process will be based on the performance in the interview rounds.',
+        selectionProcessDetail: 'The selection process will be based on the performance in the interview rounds.',
         jobLocations: ['Bangalore', 'Hyderabad', 'Gurugram'],
         whatsappGroupLink: '',
     },

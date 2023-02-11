@@ -8,6 +8,7 @@ const createOpenings = async (res) => {
     const SA = await models.job.findByPk(2);
 
     await Amazon.addJob(SA, { through: { year: '2023' } });
+    await Amazon.addJob(SDE1, { through: { year: '2021' } });
     await Google.addJob(SDE1, { through: { year: '2023' } });
 
     let openings = {
@@ -15,6 +16,10 @@ const createOpenings = async (res) => {
             {
                 job: 'SA',
                 year: '2023',
+            },
+            {
+                job: 'SDE1',
+                year: '2021',
             },
         ],
         Google: [

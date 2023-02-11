@@ -2,6 +2,10 @@ const express = require('express');
 
 const cors = require('../utils/cors');
 const { verifyUser, verifyAOC } = require('../utils/auth');
+const { verifyJobFilters, verifyJobType } = require('../utils/filter');
+const { verifyJobParameters } = require('../utils/job');
+const { parseIntQueryParam } = require('../utils/parser');
+
 const {
     getJobByID,
     getAllJobs,
@@ -10,8 +14,6 @@ const {
     addNewJob,
     updateJob,
 } = require('../controllers/job');
-const { verifyJobFilters, verifyJobType } = require('../utils/filter');
-const { verifyJobParameters } = require('../utils/job');
 
 // Setting up the router
 const jobRouter = express.Router();
@@ -20,13 +22,12 @@ const jobRouter = express.Router();
 jobRouter.use(express.json());
 
 // Middleware Handlers
-let corsAndVerifyUser = [cors.corsWithOptions, verifyUser];
-let corsVerifyUserAOCHandlers = [
-    ...corsAndVerifyUser,
-    verifyAOC,
-    verifyJobParameters,
-];
-let filterHandlers = [verifyJobFilters, verifyJobType];
+const corsAndVerifyUser = [cors.corsWithOptions, verifyUser];
+const createJobHandlers = [verifyAOC, verifyJobParameters, parseIntQueryParam, addNewJob];
+const updateJobHandlers = [verifyAOC, verifyJobParameters, parseIntQueryParam, updateJob];
+const filterJobsHandlers = [verifyJobFilters, verifyJobType, getFilteredJobs];
+const getJobsByCompanyIDHandlers = [parseIntQueryParam, getJobsByCompany];
+const getjobProfileByIDHandlers = [parseIntQueryParam, getJobByID];
 
 // _____________________________________________________________________________
 // Routes
@@ -35,25 +36,19 @@ let filterHandlers = [verifyJobFilters, verifyJobType];
 jobRouter.route('/all').get(...corsAndVerifyUser, getAllJobs);
 
 // Create a new job for a company
-jobRouter
-    .route('/:companyID/create')
-    .post(...corsVerifyUserAOCHandlers, addNewJob);
+jobRouter.route('/:companyID/create').post(...corsAndVerifyUser, ...createJobHandlers);
 
 // Get job by ID
-jobRouter.route('/:jobID/profile').get(...corsAndVerifyUser, getJobByID);
+jobRouter.route('/:jobID/profile').get(...corsAndVerifyUser, ...getjobProfileByIDHandlers);
 
 // Update a job using jobID
-jobRouter
-    .route('/:jobID/update')
-    .patch(...corsVerifyUserAOCHandlers, updateJob);
+jobRouter.route('/:jobID/update').patch(...corsAndVerifyUser, ...updateJobHandlers);
 
 // Get jobs by company ID
-jobRouter.route('/:companyID/jobs').get(...corsAndVerifyUser, getJobsByCompany);
+jobRouter.route('/:companyID/jobs').get(...corsAndVerifyUser, ...getJobsByCompanyIDHandlers);
 
 // Filter jobs by various criteria
-jobRouter
-    .route('/filter')
-    .get(...corsAndVerifyUser, ...filterHandlers, getFilteredJobs);
+jobRouter.route('/filter').get(...corsAndVerifyUser, ...filterJobsHandlers);
 
 // _____________________________________________________________________________
 

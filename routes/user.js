@@ -19,8 +19,11 @@ const userRouter = express.Router();
 userRouter.use(express.json());
 
 // Middleware Hanlers
-let corsAndVerifyUser = [cors.corsWithOptions, verifyUser];
-let corsAndVerifyAOC = [cors.corsWithOptions, verifyUser, verifyAOC];
+const corsAndVerifyUser = [cors.corsWithOptions, verifyUser];
+const getProfileByScholarIDHandlers = [verifyAOC, profileScholarID];
+const setEOPStatusHandlers = [verifyAOC, profileEOP];
+const elevateUserHandlers = [verifyAdmin, profileElevate];
+const superElevateUserHandlers = [verifyAdmin, superProfileElevate];
 
 // _____________________________________________________________________________
 // Routes
@@ -35,24 +38,16 @@ userRouter.route('/setup').patch(...corsAndVerifyUser, profileUpdate);
 userRouter.route('/update').patch(...corsAndVerifyUser, profileUpdate);
 
 // Get user by scholarID
-userRouter
-    .route('/:scholarID/profile')
-    .get(...corsAndVerifyAOC, profileScholarID);
+userRouter.route('/:scholarID/profile').get(...corsAndVerifyUser, ...getProfileByScholarIDHandlers);
 
 // Set EOP status for an user using scholarID
-userRouter
-    .route('/:scholarID/eopstatus')
-    .patch(...corsAndVerifyAOC, profileEOP);
+userRouter.route('/:scholarID/eopstatus').patch(...corsAndVerifyUser, ...setEOPStatusHandlers);
 
 // Elevate user access level from coordinator
-userRouter
-    .route('/:scholarID/elevate')
-    .patch(...corsAndVerifyUser, verifyAdmin, profileElevate);
+userRouter.route('/:scholarID/elevate').patch(...corsAndVerifyUser, ...elevateUserHandlers);
 
 // Elevate user access level direclty to admin
-userRouter
-    .route('/:scholarID/suelevate')
-    .patch(...corsAndVerifyUser, verifyAdmin, superProfileElevate);
+userRouter.route('/:scholarID/suelevate').patch(...corsAndVerifyUser, ...superElevateUserHandlers);
 
 // _____________________________________________________________________________
 

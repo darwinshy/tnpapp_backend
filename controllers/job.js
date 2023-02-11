@@ -1,10 +1,6 @@
 const { models } = require('../sequilize');
 
-const {
-    MissingQueryParam,
-    ActionDenied,
-    EmptyRecords,
-} = require('../utils/errors');
+const { ActionDenied, EmptyRecords } = require('../utils/errors');
 
 // _____________________________________________________________________________
 // Controller functions
@@ -14,16 +10,7 @@ const {
 exports.getJobByID = async (req, res, next) => {
     try {
         const jobID = req.params.jobID;
-
-        if (!jobID) {
-            const err = new MissingQueryParam(
-                'jobID is missing in the query params'
-            );
-            err.status = 400;
-            return next(err);
-        }
-
-        let job = await models.job.findByPk(jobID);
+        const job = await models.job.findByPk(jobID);
 
         if (!job) {
             const err = new EmptyRecords(`No job found with ID ${jobID}`);
@@ -31,10 +18,8 @@ exports.getJobByID = async (req, res, next) => {
             return next(err);
         }
 
-        if (job.year !== req.user.gradYear) {
-            const err = new ActionDenied(
-                'Your graduation year does not match the job year. You cannot view this job.'
-            );
+        if (req.user.accessLevel !== 'ADMIN' && job.year !== req.user.gradYear) {
+            const err = new ActionDenied('Your graduation year does not match the job year. You cannot view this job.');
             err.status = 403;
             return next(err);
         }
@@ -56,10 +41,7 @@ exports.getAllJobs = async (req, res, next) => {
             jobs = await models.job.findAll();
         }
 
-        if (
-            req.user.accessLevel === 'COORDINATOR' ||
-            req.user.accessLevel === 'STUDENT'
-        ) {
+        if (req.user.accessLevel === 'COORDINATOR' || req.user.accessLevel === 'STUDENT') {
             jobs = await models.job.findAll({
                 where: { year: req.user.gradYear },
             });
@@ -79,30 +61,13 @@ exports.getAllJobs = async (req, res, next) => {
     }
 };
 
-// Add a new job
+// In this, we check if the companyID is valid and if the job year
+// matches the user's graduation year.This is to prevent coordinators from
+// creating jobs for other years. Then, we check if the company exists. If it
+// does, we create the job and add it to the company's openings (relation).
 exports.addNewJob = async (req, res, next) => {
     try {
-        let companyID = req.params.companyID;
-
-        if (isNaN(companyID)) {
-            const err = new InvalidQueryParam(
-                'companyID should be of type number'
-            );
-            err.status = 400;
-            return next(err);
-        }
-
-        companyID = parseInt(companyID);
-
-        if (!companyID) {
-            const err = new MissingQueryParam(
-                'companyID is missing in the query params'
-            );
-            err.status = 400;
-            return next(err);
-        }
-
-        if (req.user.gradYear !== req.body.year) {
+        if (req.user.accessLevel !== 'ADMIN' && req.user.gradYear !== req.body.year) {
             const err = new ActionDenied(
                 'Your graduation year does not match the job year. You cannot create this job.'
             );
@@ -110,52 +75,23 @@ exports.addNewJob = async (req, res, next) => {
             return next(err);
         }
 
+        const companyID = req.params.companyID;
         const company = await models.company.findByPk(companyID);
 
         if (!company) {
-            const err = new EmptyRecords(
-                `No company found with ID ${companyID}`
-            );
+            const err = new EmptyRecords(`No company found with ID ${companyID}`);
             err.status = 404;
             return next(err);
         }
 
-        let jobYear = req.body.year;
-        let jobCompanyRelation;
-
-        // check whether the job already exists with the same title and a relation to the same company with the same year
-        const job = await models.job.findOne({
-            where: { title: req.body.title },
-        });
-
-        if (job) {
-            jobCompanyRelation = await models.JobCompany.findOne({
-                where: {
-                    jobID: job.jobID,
-                    companyID: companyID,
-                    year: jobYear,
-                },
-            });
-        }
-
-        if (jobCompanyRelation) {
-            const err = new ActionDenied(
-                'A job with the same title already exists for this company and year'
-            );
-            err.status = 403;
-            return next(err);
-        }
-
-        delete req.body.jobYear;
-
-        const newJob = await models.job.create(req.body);
-        const newJobCompanyRelation = await company.addJob(newJob, {
-            through: { year: jobYear },
+        const job = await models.job.create(req.body);
+        const opening = await company.addJob(newJob, {
+            through: { year: req.body.year },
         });
 
         res.statusCode = 200;
         res.setHeader('Content-Type', 'application/json');
-        res.json({ ok: true, job: job, company: newJobCompanyRelation });
+        res.json({ ok: true, job: job, opening: opening });
     } catch (error) {
         next(error);
     }
@@ -165,24 +101,15 @@ exports.addNewJob = async (req, res, next) => {
 exports.updateJob = async (req, res, next) => {
     try {
         const jobID = req.params.jobID;
-
-        if (!jobID) {
-            const err = new MissingQueryParam(
-                'jobID is missing in the query params'
-            );
-            err.status = 400;
-            return next(err);
-        }
-
         const job = await models.job.findByPk(jobID);
 
         if (!job) {
-            const err = new EmptyRecords('No jobs found');
+            const err = new EmptyRecords(`No job found with ID ${jobID}`);
             err.status = 404;
             return next(err);
         }
 
-        if (job.year !== req.user.gradYear) {
+        if (req.user.accessLevel !== 'ADMIN' && job.year !== req.user.gradYear) {
             const err = new ActionDenied(
                 'Your graduation year does not match the job year. You cannot update this job.'
             );
@@ -194,44 +121,31 @@ exports.updateJob = async (req, res, next) => {
 
         res.statusCode = 200;
         res.setHeader('Content-Type', 'application/json');
-        res.json({ ok: true, job: job });
+        res.json({ ok: true, message: 'Job update successful.', job: job });
     } catch (error) {
         next(error);
     }
 };
 
-// Students and Coordinators can only access jobs for their grad year
 exports.getJobsByCompany = async (req, res, next) => {
     try {
         const companyID = req.params.companyID;
-
-        if (!companyID) {
-            const err = new MissingQueryParam(
-                'companyID is missing in the query params'
-            );
-            err.status = 400;
-            return next(err);
-        }
-
         let jobs;
 
         if (req.user.accessLevel === 'ADMIN') {
             jobs = await models.job.findAll({ where: { companyID } });
         }
 
-        if (
-            req.user.accessLevel === 'COORDINATOR' ||
-            req.user.accessLevel === 'STUDENT'
-        ) {
+        if (req.user.accessLevel === 'COORDINATOR' || req.user.accessLevel === 'STUDENT') {
+            // get all jobs for a company and a specific year use the association table
             jobs = await models.job.findAll({
                 include: [
                     {
                         model: models.company,
                         where: { companyID },
-                        attributes: [],
+                        through: { where: { year: req.user.gradYear } },
                     },
                 ],
-                where: { year: req.user.gradYear, companyID },
             });
         }
 
@@ -251,9 +165,7 @@ exports.getJobsByCompany = async (req, res, next) => {
 
 exports.getFilteredJobs = async (req, res, next) => {
     try {
-        let jobs;
-
-        jobs = await models.job.findAll({ where: req.body });
+        const jobs = await models.job.findAll({ where: req.body });
 
         if (!jobs || jobs.length === 0) {
             const err = new EmptyRecords('No jobs found');

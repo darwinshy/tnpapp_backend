@@ -128,8 +128,6 @@ exports.addNewJob = async (req, res, next) => {
             where: { title: req.body.title },
         });
 
-        console.log(job);
-
         if (job) {
             jobCompanyRelation = await models.JobCompany.findOne({
                 where: {
@@ -226,14 +224,20 @@ exports.getJobsByCompany = async (req, res, next) => {
             req.user.accessLevel === 'STUDENT'
         ) {
             jobs = await models.job.findAll({
-                where: { companyID, year: req.user.gradYear },
+                include: [
+                    {
+                        model: models.company,
+                        where: { companyID },
+                        attributes: [],
+                    },
+                ],
+                where: { year: req.user.gradYear, companyID },
             });
         }
 
         if (!jobs || jobs.length === 0) {
             const err = new EmptyRecords('No jobs found');
             err.status = 404;
-            p;
             return next(err);
         }
 

@@ -13,15 +13,13 @@ exports.verifyJobFilters = (req, res, next) => {
         return next(err);
     }
 
-    const filterValidator = (key) => {
-        if (!validFilters.includes(key)) {
-            const err = new InvalidQueryParam(`Invalid filter: ${key}. Valid filters are: ${validFilters}`);
+    filters.forEach((filter) => {
+        if (!validFilters.includes(filter)) {
+            const err = new InvalidQueryParam(`Invalid filter: ${filter}. Valid filters are: ${validFilters}`);
             err.status = 400;
             return next(err);
         }
-    };
-
-    Object.keys(filters).forEach(filterValidator);
+    });
 
     next();
 };
@@ -29,7 +27,7 @@ exports.verifyJobFilters = (req, res, next) => {
 // Check if the job type provided by the user is valid or not
 exports.verifyJobType = (req, res, next) => {
     if (!req.body.type) {
-        next();
+        return next();
     }
 
     const validTypes = ['INTERNSHIP', 'FTE', 'INTERNSHIP+FTE'];

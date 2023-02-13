@@ -48,7 +48,7 @@ jobRouter.route('/:jobID/update').patch(...corsAndVerifyUser, ...updateJobHandle
 jobRouter.route('/:companyID/jobs').get(...corsAndVerifyUser, ...getJobsByCompanyIDHandlers);
 
 // Filter jobs by various criteria
-jobRouter.route('/filter').get(...corsAndVerifyUser, ...filterJobsHandlers);
+jobRouter.route('/filter').post(...corsAndVerifyUser, ...filterJobsHandlers);
 
 // _____________________________________________________________________________
 

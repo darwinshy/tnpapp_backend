@@ -5,12 +5,13 @@ const { ActionDenied, EmptyRecords } = require('../utils/errors');
 // _____________________________________________________________________________
 // Controller functions
 
+// Return job by ID along with the company details
 // Students and Coordinators can only access a job if the job year matches their
 // graduation year
 exports.getJobByID = async (req, res, next) => {
     try {
         const jobID = req.params.jobID;
-        const job = await models.job.findByPk(jobID);
+        const job = await models.job.findByPk(jobID, { include: models.company });
 
         if (!job) {
             const err = new EmptyRecords(`No job found with ID ${jobID}`);
@@ -26,7 +27,7 @@ exports.getJobByID = async (req, res, next) => {
 
         res.statusCode = 200;
         res.setHeader('Content-Type', 'application/json');
-        json({ ok: true, job: job });
+        res.json({ ok: true, job: job });
     } catch (error) {
         next(error);
     }
@@ -135,21 +136,14 @@ exports.updateJob = async (req, res, next) => {
 exports.getJobsByCompany = async (req, res, next) => {
     try {
         const companyID = req.params.companyID;
-        let jobs;
 
-        if (req.user.accessLevel === 'ADMIN') {
-            jobs = await models.job.findAll({ where: { companyID } });
-        } else {
-            const queryIncludes = [
-                {
-                    model: models.company,
-                    where: { companyID },
-                    through: { where: { year: req.user.gradYear } },
-                },
-            ];
+        let query = { model: models.company, where: { companyID }, attributes: [] };
 
-            jobs = await models.job.findAll({ include: queryIncludes });
+        if (req.user.accessLevel !== 'ADMIN') {
+            query.through = { where: { year: req.user.gradYear } };
         }
+
+        const jobs = await models.job.findAll({ include: query });
 
         if (!jobs || jobs.length === 0) {
             const err = new EmptyRecords('No jobs found');
@@ -176,30 +170,42 @@ exports.getFilteredJobs = async (req, res, next) => {
             return next(err);
         }
 
+        let whereQuery = {};
         let query = {};
 
         if (year) {
-            query.push({ year });
+            whereQuery.push({ year });
         }
 
         if (type) {
-            query.push({ type });
+            whereQuery.push({ type });
         }
 
         if (ctc) {
-            query.push({ ctc });
+            whereQuery.push({ ctc });
         }
 
-        let jobs;
+        if (whereQuery.length > 0) {
+            query.where = whereQuery;
+        }
 
         if (companyID) {
-            jobs = await models.job.findAll({
-                where: { query },
-                include: { model: models.company, where: { companyID } },
-            });
+            query.include = {
+                model: models.company,
+                where: { companyID },
+            };
         } else {
-            jobs = await models.job.findAll({ where: { query } });
+            query.include = {
+                model: models.company,
+                through: { where: { year: req.user.gradYear } },
+            };
         }
+
+        if (req.user.accessLevel !== 'ADMIN') {
+            query.include.through = { where: { year: req.user.gradYear } };
+        }
+
+        const jobs = await models.job.findAll(query);
 
         if (!jobs || jobs.length === 0) {
             const err = new EmptyRecords('No jobs found');

@@ -4,7 +4,7 @@ const cors = require('../utils/cors');
 const { verifyUser, verifyAOC } = require('../utils/auth');
 const { verifyJobFilters, verifyJobType } = require('../utils/filter');
 const { verifyJobParameters } = require('../utils/job');
-const { parseIntQueryParam } = require('../utils/parser');
+const { parseIntPathParam } = require('../utils/parser');
 
 const {
     getJobByID,
@@ -23,11 +23,11 @@ jobRouter.use(express.json());
 
 // Middleware Handlers
 const corsAndVerifyUser = [cors.corsWithOptions, verifyUser];
-const createJobHandlers = [verifyAOC, verifyJobParameters, parseIntQueryParam, addNewJob];
-const updateJobHandlers = [verifyAOC, verifyJobParameters, parseIntQueryParam, updateJob];
+const createJobHandlers = [verifyAOC, verifyJobParameters, parseIntPathParam, addNewJob];
+const updateJobHandlers = [verifyAOC, verifyJobParameters, parseIntPathParam, updateJob];
+const getJobsByCompanyIDHandlers = [parseIntPathParam, getJobsByCompany];
+const getjobProfileByIDHandlers = [parseIntPathParam, getJobByID];
 const filterJobsHandlers = [verifyJobFilters, verifyJobType, getFilteredJobs];
-const getJobsByCompanyIDHandlers = [parseIntQueryParam, getJobsByCompany];
-const getjobProfileByIDHandlers = [parseIntQueryParam, getJobByID];
 
 // _____________________________________________________________________________
 // Routes

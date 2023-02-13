@@ -1,6 +1,6 @@
 const { MissingQueryParam, InvalidQueryParam } = require('./errors');
 
-exports.parseIntQueryParam = (req, res, next) => {
+exports.parseIntPathParam = (req, res, next) => {
     try {
         if (!req.params) {
             const err = new MissingQueryParam(`No params found`);
@@ -30,7 +30,7 @@ exports.parseIntQueryParam = (req, res, next) => {
     }
 };
 
-exports.parseStringQueryParam = (req, res, next) => {
+exports.parseStringPathParam = (req, res, next) => {
     try {
         if (!req.params) {
             const err = new MissingQueryParam(`No params found`);

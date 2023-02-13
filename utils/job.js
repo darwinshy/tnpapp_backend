@@ -2,10 +2,11 @@ const { MissingRequiredPayload } = require('./errors');
 
 exports.verifyJobParameters = (req, res, next) => {
     const isCreating = req.originalUrl.includes('create');
+    const params = Object.keys(req.body);
 
-    const requiredParams = [
-        'year',
+    const requiredCreationParams = [
         'title',
+        'year',
         'type',
         'ctc',
         'eligibleBranches',
@@ -14,8 +15,9 @@ exports.verifyJobParameters = (req, res, next) => {
     ];
 
     const validParams = [
-        'year',
         'title',
+        'titleDesciption',
+        'year',
         'type',
         'jobDescriptionDriveLink',
         'ctc',
@@ -33,31 +35,30 @@ exports.verifyJobParameters = (req, res, next) => {
         'notes',
     ];
 
-    const params = Object.keys(req.body);
-
-    // if (isCreating && requiredParams.length !== params.length) {
-    //     const err = new MissingRequiredPayload(
-    //         `One or more required parameter are missing. ${requiredParams} are the required parameters.`
-    //     );
-    //     err.status = 400;
-    //     return next(err);
-    // }
-
     if (params.length === 0) {
-        const err = new MissingRequiredPayload(
-            `Atleast one parameter in the body is required`
-        );
+        const err = new MissingRequiredPayload(`Atleast one parameter in the body is required`);
         err.status = 400;
         return next(err);
     }
 
-    params.forEach((el) => {
-        if (!validParams.includes(el)) {
-            const err = new InvalidQueryParam(`${el} is not a valid params`);
+    if (isCreating) {
+        // Check if all required params are present
+        const missingReqParams = requiredCreationParams.filter((el) => !params.includes(el));
+
+        if (missingReqParams.length > 0) {
+            const err = new MissingRequiredPayload(`Missing required params: ${missingReqParams}`);
             err.status = 400;
             return next(err);
         }
-    });
+    }
+
+    const invalidParams = params.filter((el) => !validParams.includes(el));
+
+    if (invalidParams.length > 0) {
+        const err = new MissingRequiredPayload(`Invalid params: ${invalidParams}`);
+        err.status = 400;
+        return next(err);
+    }
 
     next();
 };

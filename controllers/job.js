@@ -84,6 +84,9 @@ exports.addNewJob = async (req, res, next) => {
             return next(err);
         }
 
+        req.body.createdBy = req.user.authID;
+        req.body.updatedBy = req.user.authID;
+
         const job = await models.job.create(req.body);
         const opening = await company.addJob(newJob, {
             through: { year: req.body.year },
@@ -117,6 +120,8 @@ exports.updateJob = async (req, res, next) => {
             return next(err);
         }
 
+        req.body.updatedBy = req.user.authID;
+
         await job.update(req.body);
 
         res.statusCode = 200;
@@ -134,19 +139,16 @@ exports.getJobsByCompany = async (req, res, next) => {
 
         if (req.user.accessLevel === 'ADMIN') {
             jobs = await models.job.findAll({ where: { companyID } });
-        }
+        } else {
+            const queryIncludes = [
+                {
+                    model: models.company,
+                    where: { companyID },
+                    through: { where: { year: req.user.gradYear } },
+                },
+            ];
 
-        if (req.user.accessLevel === 'COORDINATOR' || req.user.accessLevel === 'STUDENT') {
-            // get all jobs for a company and a specific year use the association table
-            jobs = await models.job.findAll({
-                include: [
-                    {
-                        model: models.company,
-                        where: { companyID },
-                        through: { where: { year: req.user.gradYear } },
-                    },
-                ],
-            });
+            jobs = await models.job.findAll({ include: queryIncludes });
         }
 
         if (!jobs || jobs.length === 0) {
@@ -165,7 +167,39 @@ exports.getJobsByCompany = async (req, res, next) => {
 
 exports.getFilteredJobs = async (req, res, next) => {
     try {
-        const jobs = await models.job.findAll({ where: req.body });
+        const { companyID, year, type, ctc } = req.body;
+
+        // If the user is not an admin, they can only view jobs for their graduating year
+        if (req.user.accessLevel !== 'ADMIN' && year && year !== req.user.gradYear) {
+            const err = new UserNotAuthorized('You can only view jobs for your graduating year');
+            err.status = 400;
+            return next(err);
+        }
+
+        let query = {};
+
+        if (year) {
+            query.push({ year });
+        }
+
+        if (type) {
+            query.push({ type });
+        }
+
+        if (ctc) {
+            query.push({ ctc });
+        }
+
+        let jobs;
+
+        if (companyID) {
+            jobs = await models.job.findAll({
+                where: { query },
+                include: { model: models.company, where: { companyID } },
+            });
+        } else {
+            jobs = await models.job.findAll({ where: { query } });
+        }
 
         if (!jobs || jobs.length === 0) {
             const err = new EmptyRecords('No jobs found');

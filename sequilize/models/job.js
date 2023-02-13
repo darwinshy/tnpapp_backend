@@ -80,5 +80,13 @@ module.exports = (sequelize) => {
             type: Sequelize.STRING,
             allowNull: true,
         },
+        createdBy: {
+            type: Sequelize.STRING,
+            allowNull: true,
+        },
+        updatedBy: {
+            type: Sequelize.STRING,
+            allowNull: true,
+        },
     });
 };

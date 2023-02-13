@@ -20,6 +20,8 @@ const jobs = [
         selectionProcessDetail: 'The selection process will be based on the performance in the interview rounds.',
         jobLocations: ['Bangalore', 'Hyderabad', 'Gurugram'],
         whatsappGroupLink: '',
+        createdBy: 'admin',
+        updatedBy: 'admin',
     },
     {
         jobID: 2,
@@ -40,6 +42,8 @@ const jobs = [
         selectionProcessDetail: 'The selection process will be based on the performance in the interview rounds.',
         jobLocations: ['Bangalore', 'Hyderabad', 'Gurugram'],
         whatsappGroupLink: '',
+        createdBy: 'admin',
+        updatedBy: 'admin',
     },
 ];
 

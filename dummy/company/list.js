@@ -9,6 +9,7 @@ const companies = [
         companyLogoImageLink:
             'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Amazon_logo.svg/1200px-Amazon_logo.svg.png',
         companyWebsiteLink: 'https://www.amazon.com/',
+        createdBy: 'admin',
         updatedBy: 'admin',
     },
     {
@@ -19,6 +20,7 @@ const companies = [
         companyLogoImageLink:
             'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Google_2015_logo.svg/1200px-Google_2015_logo.svg.png',
         companyWebsiteLink: 'https://www.google.com/',
+        createdBy: 'admin',
         updatedBy: 'admin',
     },
 ];

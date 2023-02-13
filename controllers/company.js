@@ -59,12 +59,10 @@ exports.addNewCompany = async (req, res, next) => {
             return next(err);
         }
 
-        let company = {
-            ...req.body,
-            updatedBy: req.user.authID,
-        };
+        req.body.createdBy = req.user.authID;
+        req.body.updatedBy = req.user.authID;
 
-        company = await models.company.create(company);
+        const company = await models.company.create(req.body);
 
         res.statusCode = 200;
         res.setHeader('Content-Type', 'application/json');
@@ -86,7 +84,7 @@ exports.updateCompany = async (req, res, next) => {
             return next(err);
         }
 
-        req.body.updatedBy = req.user.userID;
+        req.body.updatedBy = req.user.authID;
 
         await company.update(req.body);
 

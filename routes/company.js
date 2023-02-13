@@ -3,7 +3,7 @@ const express = require('express');
 const cors = require('../utils/cors');
 const { verifyUser, verifyAOC } = require('../utils/auth');
 const { verifyCompanyParameters } = require('../utils/company');
-const { parseIntQueryParam } = require('../utils/parser');
+const { parseIntPathParam } = require('../utils/parser');
 
 const { getCompanyByID, getAllCompanies, addNewCompany, updateCompany } = require('../controllers/company');
 
@@ -15,9 +15,9 @@ companyRouter.use(express.json());
 
 // Middleware Handlers
 const corsAndVerifyUser = [cors.corsWithOptions, verifyUser];
-const getCompanyProfileHandlers = [parseIntQueryParam, getCompanyByID];
-const createCompanyHandlers = [verifyAOC, verifyCompanyParameters, parseIntQueryParam, addNewCompany];
-const updateCompanyHandlers = [verifyAOC, verifyCompanyParameters, parseIntQueryParam, updateCompany];
+const getCompanyProfileHandlers = [parseIntPathParam, getCompanyByID];
+const createCompanyHandlers = [verifyAOC, verifyCompanyParameters, parseIntPathParam, addNewCompany];
+const updateCompanyHandlers = [verifyAOC, verifyCompanyParameters, parseIntPathParam, updateCompany];
 
 // _____________________________________________________________________________
 // Routes

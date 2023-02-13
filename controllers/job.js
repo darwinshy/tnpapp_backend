@@ -11,7 +11,15 @@ const { ActionDenied, EmptyRecords } = require('../utils/errors');
 exports.getJobByID = async (req, res, next) => {
     try {
         const jobID = req.params.jobID;
-        const job = await models.job.findByPk(jobID, { include: models.company });
+        const isDetailed = req.query.detailed === 'true';
+
+        let job;
+
+        if (isDetailed) {
+            job = await models.job.findByPk(jobID, { include: models.company });
+        } else {
+            job = await models.job.findByPk(jobID);
+        }
 
         if (!job) {
             const err = new EmptyRecords(`No job found with ID ${jobID}`);
@@ -136,8 +144,13 @@ exports.updateJob = async (req, res, next) => {
 exports.getJobsByCompany = async (req, res, next) => {
     try {
         const companyID = req.params.companyID;
+        const isDetailed = req.query.detailed === 'true';
 
         let query = { model: models.company, where: { companyID }, attributes: [] };
+
+        if (isDetailed) {
+            delete query.attributes;
+        }
 
         if (req.user.accessLevel !== 'ADMIN') {
             query.through = { where: { year: req.user.gradYear } };
